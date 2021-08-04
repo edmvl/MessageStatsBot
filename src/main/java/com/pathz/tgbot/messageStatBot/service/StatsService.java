@@ -5,6 +5,7 @@ import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import org.springframework.stereotype.Service;
+import static com.pathz.tgbot.messageStatBot.util.BotCommands.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,10 @@ public class StatsService {
 
     public List<Stats> findAll() {
         return statsRepo.findAll();
+    }
+
+    public List<Stats> findTop25() {
+        return statsRepo.findTop25ByOrderByCountDesc();
     }
 
     public boolean isExistByMessage(String message) {
@@ -56,7 +61,7 @@ public class StatsService {
 
         stringBuilder.append(" === STATISTICS ===\n");
 
-        List<StatsDto> statsDtos = findAll()
+        List<StatsDto> statsDtos = findTop25()
                 .stream()
                 .map(statsDtoMapper::mapToDto)
                 .collect(toList());
@@ -75,5 +80,14 @@ public class StatsService {
     public String getAuthors() {
         String authors = "Bot was created by @akira_7 and @Yaarslaav";
         return authors;
+    }
+
+    public String getHelp() {
+        String helpMessage = """
+                %s - get information about the number of individual messages
+                %s - get the most used word
+                %s - creators
+                """.formatted(STATS_COMMAND, GET_MOST_FREQ_WORD_COMMAND, GET_AUTHORS_COMMAND);
+        return helpMessage;
     }
 }

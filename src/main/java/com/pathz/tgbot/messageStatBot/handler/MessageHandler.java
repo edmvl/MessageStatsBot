@@ -5,23 +5,13 @@ import com.pathz.tgbot.messageStatBot.service.StatsService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-
-import java.util.HashSet;
-import java.util.Set;
+import static com.pathz.tgbot.messageStatBot.util.BotCommands.*;
 
 @Component
 public class MessageHandler implements Handler<Message> {
 
     private final MessageSender messageSender;
     private final StatsService statsService;
-
-    private static final String STATS_COMMAND = "/msg_stat";
-    private static final String GET_MOST_FREQ_WORD_COMMAND = "/top_word";
-    private static final String GET_AUTHORS_COMMAND = "/authors";
-    private static final String HELP_COMMAND = "/help";
-
-    private Set<String> commands = new HashSet<>(Set.of(STATS_COMMAND,
-            GET_MOST_FREQ_WORD_COMMAND, GET_AUTHORS_COMMAND, HELP_COMMAND));
 
     public MessageHandler(MessageSender messageSender, StatsService service) {
         this.messageSender = messageSender;
@@ -56,7 +46,7 @@ public class MessageHandler implements Handler<Message> {
             }
 
             if (userText.equals(HELP_COMMAND)) {
-
+                send(message, statsService.getHelp());
             }
 
         }

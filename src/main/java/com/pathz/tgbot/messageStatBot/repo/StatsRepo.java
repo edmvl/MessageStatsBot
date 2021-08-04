@@ -15,4 +15,6 @@ public interface StatsRepo extends JpaRepository<Stats, Long> {
     boolean existsByMessage(String message);;
 
     Stats findTopByOrderByCountDesc();
+
+    List<Stats> findTop25ByOrderByCountDesc();
 }
