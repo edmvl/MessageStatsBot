@@ -4,6 +4,8 @@ import com.pathz.tgbot.messageStatBot.handler.MessageHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.math.BigInteger;
+
 @Component
 public class DefaultProcessor implements Processor {
 

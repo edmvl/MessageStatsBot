@@ -72,4 +72,8 @@ public class StatsService {
         return statsRepo.findTopByOrderByCountDesc().getMessage();
     }
 
+    public String getAuthors() {
+        String authors = "Bot was created by @akira_7 and @Yaarslaav";
+        return authors;
+    }
 }
