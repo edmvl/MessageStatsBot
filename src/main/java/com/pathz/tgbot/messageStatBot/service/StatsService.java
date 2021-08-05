@@ -37,23 +37,8 @@ public class StatsService {
     }
 
     public void processStatistic(String text) {
-        List<String> splitText = Arrays.stream(text.split(" ")).collect(Collectors.toList());
-        splitText = splitText.stream().filter(x->x.length()>=3).collect(Collectors.toList());;
-
-        for (String string : splitText) {
-            String lowerWord = string.toLowerCase();
-
-            if (isExistByMessage(lowerWord)) {
-                Stats found = statsRepo.findByMessage(lowerWord);
-                found.setCount(found.getCount() + 1);
-                statsRepo.save(found);
-            } else {
-                StatsDto statsDto = new StatsDto(lowerWord, 1);
-                Stats stats = statsDtoMapper.mapToEntity(statsDto);
-                statsRepo.save(stats);
-            }
-        }
-
+        processCountMessage(text);
+        processUserMessageStats(text);
     }
 
     public String getStatistic() {
@@ -90,4 +75,28 @@ public class StatsService {
                 """.formatted(STATS_COMMAND, GET_MOST_FREQ_WORD_COMMAND, GET_AUTHORS_COMMAND);
         return helpMessage;
     }
+
+    private void processCountMessage(String text) {
+        List<String> splitText = Arrays.stream(text.split(" ")).collect(Collectors.toList());
+        splitText = splitText.stream().filter(x->x.length()>=3).collect(Collectors.toList());;
+
+        for (String string : splitText) {
+            String lowerWord = string.toLowerCase();
+
+            if (isExistByMessage(lowerWord)) {
+                Stats found = statsRepo.findByMessage(lowerWord);
+                found.setCount(found.getCount() + 1);
+                statsRepo.save(found);
+            } else {
+                StatsDto statsDto = new StatsDto(lowerWord, 1);
+                Stats stats = statsDtoMapper.mapToEntity(statsDto);
+                statsRepo.save(stats);
+            }
+        }
+    }
+
+    private void processUserMessageStats(String text) {
+
+    }
+
 }

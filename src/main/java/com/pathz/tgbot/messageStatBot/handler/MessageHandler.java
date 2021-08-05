@@ -48,7 +48,6 @@ public class MessageHandler implements Handler<Message> {
             if (userText.equals(HELP_COMMAND)) {
                 send(message, statsService.getHelp());
             }
-
         }
     }
 
