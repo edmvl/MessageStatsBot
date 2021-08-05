@@ -55,6 +55,10 @@ public class MessageHandler implements Handler<Message> {
             if (userText.contains(DELETE_COMMAND)) {
                 deleteWord(message, userText);
             }
+
+            if (userText.equals(CHAT_DESCRIPTION_COMMAND)) {
+                send(message, message.getText());
+            }
         }
     }
 
