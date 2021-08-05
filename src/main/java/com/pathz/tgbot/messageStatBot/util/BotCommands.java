@@ -10,5 +10,4 @@ public final class BotCommands {
     public static final String GET_AUTHORS_COMMAND = "/authors";
     public static final String HELP_COMMAND = "/help";
     public static final String DELETE_COMMAND = "/delete";
-    public static final String CHAT_DESCRIPTION_COMMAND = "/chat_desc";
 }
