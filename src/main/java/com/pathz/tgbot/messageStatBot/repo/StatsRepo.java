@@ -18,7 +18,7 @@ public interface StatsRepo extends JpaRepository<Stats, Long> {
 
     Stats findTopByOrderByCountDesc();
 
-    List<Stats> findTop25ByOrderByCountDesc();
+    List<Stats> findTop15ByOrderByCountDesc();
 
     void deleteByMessage(String message);
 }

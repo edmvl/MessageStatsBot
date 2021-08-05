@@ -2,7 +2,6 @@ package com.pathz.tgbot.messageStatBot.handler;
 
 import com.pathz.tgbot.messageStatBot.message_sender.MessageSender;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
-import com.pathz.tgbot.messageStatBot.service.UserMessageStatsService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -17,14 +16,12 @@ public class MessageHandler implements Handler<Message> {
 
     private final MessageSender messageSender;
     private final StatsService statsService;
-    private final UserMessageStatsService userMessageStatsService;
 
     private final Logger logger = Logger.getLogger("MessageHandler");
 
-    public MessageHandler(MessageSender messageSender, StatsService service, UserMessageStatsService userMessageStatsService) {
+    public MessageHandler(MessageSender messageSender, StatsService service) {
         this.messageSender = messageSender;
         this.statsService = service;
-        this.userMessageStatsService = userMessageStatsService;
     }
 
     @Override
@@ -54,10 +51,6 @@ public class MessageHandler implements Handler<Message> {
 
             if (userText.contains(DELETE_COMMAND)) {
                 deleteWord(message, userText);
-            }
-
-            if (userText.equals(CHAT_DESCRIPTION_COMMAND)) {
-                send(message, message.getText());
             }
         }
     }

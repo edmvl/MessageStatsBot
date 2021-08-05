@@ -26,12 +26,8 @@ public class StatsService {
         this.statsDtoMapper = statsDtoMapper;
     }
 
-    public List<Stats> findAll() {
-        return statsRepo.findAll();
-    }
-
-    public List<Stats> findTop25() {
-        return statsRepo.findTop25ByOrderByCountDesc();
+    public List<Stats> findTop15() {
+        return statsRepo.findTop15ByOrderByCountDesc();
     }
 
     public boolean isExistByMessage(String message) {
@@ -40,15 +36,14 @@ public class StatsService {
 
     public void processStatistic(String text) {
         processCountMessage(text);
-        processUserMessageStats(text);
     }
 
     public String getStatistic() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(" === STATISTICS ===\n");
+        stringBuilder.append(" === TOP WORDS ===\n");
 
-        List<StatsDto> statsDtos = findTop25()
+        List<StatsDto> statsDtos = findTop15()
                 .stream()
                 .map(statsDtoMapper::mapToDto)
                 .collect(toList());
@@ -65,8 +60,7 @@ public class StatsService {
     }
 
     public String getAuthors() {
-        String authors = "Bot was created by @akira_7 and @Yaarslaav";
-        return authors;
+        return "Bot was created by @akira_7 and @Yaarslaav";
     }
 
     public String getHelp() {
@@ -77,7 +71,6 @@ public class StatsService {
                 """.formatted(STATS_COMMAND, GET_MOST_FREQ_WORD_COMMAND, GET_AUTHORS_COMMAND);
         return helpMessage;
     }
-
 
     private void processCountMessage(String text) {
         List<String> splitText = Arrays.stream(text.split(" ")).collect(Collectors.toList());
@@ -96,10 +89,6 @@ public class StatsService {
                 statsRepo.save(stats);
             }
         }
-    }
-
-    private void processUserMessageStats(String text) {
-
     }
 
     @Transactional
