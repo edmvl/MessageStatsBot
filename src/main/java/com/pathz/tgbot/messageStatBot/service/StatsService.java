@@ -5,6 +5,8 @@ import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import static com.pathz.tgbot.messageStatBot.util.BotCommands.*;
 
 import java.util.Arrays;
@@ -76,6 +78,7 @@ public class StatsService {
         return helpMessage;
     }
 
+
     private void processCountMessage(String text) {
         List<String> splitText = Arrays.stream(text.split(" ")).collect(Collectors.toList());
         splitText = splitText.stream().filter(x->x.length()>=3).collect(Collectors.toList());;
@@ -99,4 +102,8 @@ public class StatsService {
 
     }
 
+    @Transactional
+    public void deleteMessage(String splitElem) {
+        statsRepo.deleteByMessage(splitElem);
+    }
 }

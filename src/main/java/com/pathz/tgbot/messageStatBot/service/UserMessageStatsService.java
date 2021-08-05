@@ -11,6 +11,4 @@ public class UserMessageStatsService {
     public UserMessageStatsService(UserMessageStatsRepo userMessageStatsRepo) {
         this.userMessageStatsRepo = userMessageStatsRepo;
     }
-
-    
 }
