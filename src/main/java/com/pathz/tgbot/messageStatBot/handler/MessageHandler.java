@@ -1,90 +1,108 @@
 package com.pathz.tgbot.messageStatBot.handler;
 
-import com.pathz.tgbot.messageStatBot.message_sender.MessageSender;
+import com.pathz.tgbot.messageStatBot.entity.Stats;
+import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
+import com.pathz.tgbot.messageStatBot.util.BotCommands;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
-
-import static com.pathz.tgbot.messageStatBot.util.BotCommands.*;
 
 @Component
 public class MessageHandler implements Handler<Message> {
 
-    private final MessageSender messageSender;
+    private final MessageExecutor messageExecutor;
     private final StatsService statsService;
 
     private final Logger logger = Logger.getLogger("MessageHandler");
 
-    public MessageHandler(MessageSender messageSender, StatsService service) {
-        this.messageSender = messageSender;
+    public MessageHandler(MessageExecutor messageExecutor, StatsService service) {
+        this.messageExecutor = messageExecutor;
         this.statsService = service;
     }
 
     @Override
     public void choose(Message message) {
+        System.out.println(message);
         if (message.hasText()) {
             String userText = message.getText();
-
-            if (userText.equals(STATS_COMMAND)) {
-                send(message, statsService.getStatistic());
-            }
+            Long chatId = message.getChatId();
+            Long userId = message.getFrom().getId();
 
             if (!userText.contains("/")) {
-                statsService.processStatistic(userText);
+                statsService.processStatistic(chatId.toString(), userId.toString());
             }
 
-            if (userText.equals(GET_MOST_FREQ_WORD_COMMAND)) {
-                sendMostFreqWord(message);
-            }
-
-            if (userText.equals(GET_AUTHORS_COMMAND)) {
-                send(message, statsService.getAuthors());
-            }
-
-            if (userText.equals(HELP_COMMAND)) {
+            if (userText.equals(BotCommands.HELP_COMMAND.getCommand())) {
                 send(message, statsService.getHelp());
+                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
             }
 
-            if (userText.contains(DELETE_COMMAND)) {
-                deleteWord(message, userText);
+            if (userText.equals(BotCommands.GET_STINKY_ASS.getCommand())) {
+                String stinky = statsService.getStinky(message);
+                User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stinky).getUser();
+                String firstName = user.getFirstName();
+                String lastName = user.getLastName();
+                SendMessage sendMessage = new SendMessage();
+                String text = "Кунон куче пите шоршло:\n";
+                sendMessage.setChatId(message.getChatId());
+                MessageEntity messageEntity = new MessageEntity();
+                messageEntity.setUser(user);
+                messageEntity.setOffset(text.length());
+                String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
+                text += userIdentityText;
+                messageEntity.setLength(userIdentityText.length());
+                messageEntity.setType("text_mention");
+                sendMessage.setEntities(List.of(messageEntity));
+                sendMessage.setText(text.toString());
+                messageExecutor.sendMessage(sendMessage);
+                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
+            }
+
+            if (userText.equals(BotCommands.GET_CHATTY.getCommand())) {
+                List<Stats> top = statsService.getTopChattyUserId(message);
+                String caption = "Сурох тути щиекеннисем:\n";
+                SendMessage sendMessage = new SendMessage();
+                StringBuilder text = new StringBuilder();
+                text.append(caption);
+                ArrayList<MessageEntity> messageEntities = new ArrayList<>();
+                top.forEach(stats -> {
+                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stats.getUserId()).getUser();
+                    String firstName = user.getFirstName();
+                    String lastName = user.getLastName();
+                    sendMessage.setChatId(message.getChatId());
+                    MessageEntity messageEntity = new MessageEntity();
+                    messageEntity.setUser(user);
+                    messageEntity.setOffset(text.length());
+                    String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + stats.getCount() + ")" + "\n";
+                    text.append(userIdentityText);
+                    messageEntity.setLength(userIdentityText.length());
+                    messageEntity.setType("text_mention");
+                    messageEntities.add(messageEntity);
+                });
+                sendMessage.setEntities(messageEntities);
+                sendMessage.setText(text.toString());
+                messageExecutor.sendMessage(sendMessage);
+                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
             }
         }
+        statsService.processNewChatMembers(message);
+        statsService.processLeftChatMembers(message);
     }
 
     private void send(Message message, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(message.getChatId()));
         sendMessage.setText(text);
-        messageSender.sendMessage(sendMessage);
-    }
-
-    private void sendErrorMessage(Message message, String text) {
-        send(message, "[Error] " + text);
-    }
-
-    private void deleteWord(Message message, String text) {
-        try {
-            String splitElem = text.split(" ")[1];
-            statsService.deleteMessage(splitElem);
-            send(message, "The word [ " + splitElem + " ] has been deleted");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            logger.log(Level.WARNING, "Message length is equal to 1. It cannot be divided");
-            sendErrorMessage(message, "You need to enter the word you want to delete");
-        }
-    }
-
-    private void sendMostFreqWord(Message message) {
-        SendMessage sendMessage = SendMessage.builder()
-                .text("The most frequency word is <b>" + statsService.getMostFrequencyWord()+"</b>")
-                .parseMode("HTML")
-                .chatId(String.valueOf(message.getChatId()))
-                .build();
-
-        messageSender.sendMessage(sendMessage);
+        messageExecutor.sendMessage(sendMessage);
     }
 
 }

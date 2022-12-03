@@ -2,18 +2,19 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.StatsDto;
 import com.pathz.tgbot.messageStatBot.entity.Stats;
-import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
+import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 
-import static com.pathz.tgbot.messageStatBot.util.BotCommands.*;
-
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
+import static com.pathz.tgbot.messageStatBot.util.BotCommands.values;
 
 @Service
 public class StatsService {
@@ -26,73 +27,65 @@ public class StatsService {
         this.statsDtoMapper = statsDtoMapper;
     }
 
-    public List<Stats> findTop15() {
-        return statsRepo.findTop15ByOrderByCountDesc();
+    public boolean isExistByMessage(String chatId, String userId, LocalDate date) {
+        return statsRepo.existsByUserIdAndChatIdAndAndDate(chatId, userId, date);
     }
 
-    public boolean isExistByMessage(String message) {
-        return statsRepo.existsByMessage(message);
-    }
-
-    public void processStatistic(String text) {
-        processCountMessage(text);
-    }
-
-    public String getStatistic() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append(" === TOP WORDS ===\n");
-
-        List<StatsDto> statsDtos = findTop15()
-                .stream()
-                .map(statsDtoMapper::mapToDto)
-                .collect(toList());
-
-        for (StatsDto elem: statsDtos) {
-            stringBuilder.append(elem.getMessage()).append(": ").append(elem.getCount()).append("\n");
-        }
-
-        return stringBuilder.toString();
-    }
-
-    public String getMostFrequencyWord() {
-        return statsRepo.findTopByOrderByCountDesc().getMessage();
-    }
-
-    public String getAuthors() {
-        return "Bot was created by @akira_7 and @Yaarslaav";
+    public void processStatistic(String chatId, String userId) {
+        processCounting(chatId, userId);
     }
 
     public String getHelp() {
-        String helpMessage = """
-                %s - get information about the number of individual messages
-                %s - get the most used word
-                %s - creators
-                """.formatted(STATS_COMMAND, GET_MOST_FREQ_WORD_COMMAND, GET_AUTHORS_COMMAND);
-        return helpMessage;
+        return Arrays.stream(values()).map(
+                botCommand -> botCommand.getCommand() + " : " + botCommand.getExplainer()).collect(Collectors.joining("\n")
+        );
     }
 
-    private void processCountMessage(String text) {
-        List<String> splitText = Arrays.stream(text.split(" ")).collect(Collectors.toList());
-        splitText = splitText.stream().filter(x->x.length()>=3).collect(Collectors.toList());;
-
-        for (String string : splitText) {
-            String lowerWord = string.toLowerCase();
-
-            if (isExistByMessage(lowerWord)) {
-                Stats found = statsRepo.findByMessage(lowerWord);
-                found.setCount(found.getCount() + 1);
-                statsRepo.save(found);
-            } else {
-                StatsDto statsDto = new StatsDto(lowerWord, 1);
+    public void processNewChatMembers(Message message) {
+        List<User> newChatMembers = message.getNewChatMembers();
+        if (Objects.isNull(newChatMembers) || newChatMembers.size() == 0) {
+            return;
+        }
+        newChatMembers.forEach(user -> {
+            if (!statsRepo.existsByUserIdAndChatIdAndAndDate(message.getChatId().toString(), user.getId().toString(), LocalDate.now())) {
+                StatsDto statsDto = new StatsDto(message.getChatId().toString(), user.getId().toString(), LocalDate.now(), 0);
                 Stats stats = statsDtoMapper.mapToEntity(statsDto);
                 statsRepo.save(stats);
             }
+        });
+    }
+
+    public void processLeftChatMembers(Message message) {
+        User leftChatMember = message.getLeftChatMember();
+        if (Objects.isNull(leftChatMember)) {
+            return;
+        }
+        Stats byUserIdAndChatId = statsRepo.findByUserIdAndChatIdAndDate(
+                leftChatMember.getId().toString(), message.getChatId().toString(), LocalDate.now()
+        );
+        statsRepo.delete(byUserIdAndChatId);
+    }
+
+    public String getStinky(Message message) {
+        List<String> distinctUserIdByChatId = statsRepo.findDistinctUserIdByChatId(message.getChatId().toString());
+        int i = (int) (Math.random() * distinctUserIdByChatId.size());
+        return distinctUserIdByChatId.get(i);
+    }
+
+    public List<Stats> getTopChattyUserId(Message message) {
+        return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(message.getChatId().toString(), LocalDate.now());
+    }
+
+    private void processCounting(String chatId, String userId) {
+        if (isExistByMessage(userId, chatId, LocalDate.now())) {
+            Stats found = statsRepo.findByUserIdAndChatIdAndDate(userId, chatId, LocalDate.now());
+            found.setCount(found.getCount() + 1);
+            statsRepo.save(found);
+        } else {
+            StatsDto statsDto = new StatsDto(chatId, userId, LocalDate.now(), 1);
+            Stats stats = statsDtoMapper.mapToEntity(statsDto);
+            statsRepo.save(stats);
         }
     }
 
-    @Transactional
-    public void deleteMessage(String splitElem) {
-        statsRepo.deleteByMessage(splitElem);
-    }
 }

@@ -1,15 +1,14 @@
 package com.pathz.tgbot.messageStatBot.entity;
 
-import lombok.*;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.time.LocalDate;
 
 @Entity
 @Data
-@Table(name = "stats")
-public class Stats {
+@Table(name = "stinky")
+public class Stinky {
 
     @Id
     @Column(name = "id")
@@ -23,10 +22,7 @@ public class Stats {
     String userId;
 
     @Column(name = "date")
-    LocalDate date;
-
-    @Column(name = "count")
-    Integer count;
+    Date date;
 
     @Override
     public String toString() {
@@ -34,8 +30,7 @@ public class Stats {
                 "id=" + id +
                 ", chatId ='" + chatId + '\'' +
                 ", userId='" + userId + '\'' +
-                ", date=" + date +
-                ", count=" + count +
+                ", count=" + date +
                 '}';
     }
 }

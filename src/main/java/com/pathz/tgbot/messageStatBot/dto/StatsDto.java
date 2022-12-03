@@ -4,16 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
+import java.sql.Date;
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class StatsDto {
 
-    String message;
+    String chatId;
+    String userId;
+    LocalDate date;
     int count;
 
     @Override
     public String toString() {
-        return message + ": " + count;
+        return chatId + "," + userId + ": " + count;
     }
 }

@@ -8,14 +8,23 @@
 		<version>2.5.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+	<profiles>
+		<profile>
+			<id>test</id>
+			<properties>
+				<telegram.bot.username>hamoryalstatsbot</telegram.bot.username>
+				<telegram.bot.token>5944980547:AAGpTcitBMZJcXxqQZ1gtkzKNwvFge2m8io</telegram.bot.token>
+			</properties>
+		</profile>
+	</profiles>
 	<groupId>com.pathz.tgbot</groupId>
 	<artifactId>messageStatBot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>messageStatBot</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>15</java.version>
+		<java.version>16</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -50,7 +59,7 @@
 		<dependency>
 			<groupId>org.telegram</groupId>
 			<artifactId>telegrambots-spring-boot-starter</artifactId>
-			<version>5.3.0</version>
+			<version>6.3.0</version>
 		</dependency>
 	</dependencies>
 
@@ -66,6 +75,14 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>16</source>
+					<target>16</target>
 				</configuration>
 			</plugin>
 			<plugin>
