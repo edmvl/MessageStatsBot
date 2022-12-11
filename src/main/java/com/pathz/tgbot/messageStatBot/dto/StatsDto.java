@@ -17,6 +17,7 @@ public class StatsDto {
     String userId;
     LocalDate date;
     int count;
+    String login;
 
     @Override
     public String toString() {

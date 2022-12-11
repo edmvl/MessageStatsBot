@@ -31,8 +31,8 @@ public class StatsService {
         return statsRepo.existsByUserIdAndChatIdAndAndDate(chatId, userId, date);
     }
 
-    public void processStatistic(String chatId, String userId) {
-        processCounting(chatId, userId);
+    public void processStatistic(String chatId, String userId, String userName) {
+        processCounting(chatId, userId, userName);
     }
 
     public String getHelp() {
@@ -48,7 +48,7 @@ public class StatsService {
         }
         newChatMembers.forEach(user -> {
             if (!statsRepo.existsByUserIdAndChatIdAndAndDate(message.getChatId().toString(), user.getId().toString(), LocalDate.now())) {
-                StatsDto statsDto = new StatsDto(message.getChatId().toString(), user.getId().toString(), LocalDate.now(), 0);
+                StatsDto statsDto = new StatsDto(message.getChatId().toString(), user.getId().toString(), LocalDate.now(), 0, user.getUserName());
                 Stats stats = statsDtoMapper.mapToEntity(statsDto);
                 statsRepo.save(stats);
             }
@@ -76,13 +76,13 @@ public class StatsService {
         return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(message.getChatId().toString(), LocalDate.now());
     }
 
-    private void processCounting(String chatId, String userId) {
+    private void processCounting(String chatId, String userId, String userName) {
         if (isExistByMessage(userId, chatId, LocalDate.now())) {
             Stats found = statsRepo.findByUserIdAndChatIdAndDate(userId, chatId, LocalDate.now());
             found.setCount(found.getCount() + 1);
             statsRepo.save(found);
         } else {
-            StatsDto statsDto = new StatsDto(chatId, userId, LocalDate.now(), 1);
+            StatsDto statsDto = new StatsDto(chatId, userId, LocalDate.now(), 1, userName);
             Stats stats = statsDtoMapper.mapToEntity(statsDto);
             statsRepo.save(stats);
         }

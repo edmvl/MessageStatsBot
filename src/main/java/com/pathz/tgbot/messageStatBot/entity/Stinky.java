@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -22,7 +23,7 @@ public class Stinky {
     String userId;
 
     @Column(name = "date")
-    Date date;
+    LocalDate date;
 
     @Override
     public String toString() {

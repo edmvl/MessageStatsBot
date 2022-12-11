@@ -2,10 +2,10 @@ package com.pathz.tgbot.messageStatBot.util;
 
 public enum BotCommands {
 
-    HELP_COMMAND("/help", "тем тумалла ку ботпа, онлантар-ха"),
-    //GET_SILENT_USERS("/шошисенешыра", "шпиёнсене тупмала, хулопа хенемелле"),
-    GET_STINKY_ASS("/pohlo", "кашни кун чатра такам посарать, щав посараканнине шыраса тупатпор"),
-    GET_CHATTY("/suroh", "хоше перисем чата керес умень сурох тути щиещще");
+    HELP_COMMAND("/help", "тем тумалла ку ботпа, ăнлантар-ха"),
+    //GET_SILENT_USERS("/шăшисенешыра", "шпиёнсене тупмала, хулăпа хĕнемелле"),
+    GET_STINKY_ASS("/pohlo", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
+    GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе");
 
     public String getCommand() {
         return command;

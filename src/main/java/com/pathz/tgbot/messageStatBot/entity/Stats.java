@@ -25,6 +25,9 @@ public class Stats {
     @Column(name = "date")
     LocalDate date;
 
+    @Column(name = "login")
+    String login;
+
     @Column(name = "count")
     Integer count;
 
