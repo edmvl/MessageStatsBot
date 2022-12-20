@@ -41,7 +41,8 @@ public class MessageHandler implements Handler<Message> {
 
     @Override
     public void choose(Message message) {
-        System.out.println(message);
+        System.out.print(message.getFrom() + " : ");
+        System.out.println(message.getText());
         if (message.hasText()) {
             String userText = message.getText();
             Long chatId = message.getChatId();
@@ -83,13 +84,13 @@ public class MessageHandler implements Handler<Message> {
                     sendMessage.setText(text);
                     stinkyService.save(chatId.toString(), userId.toString(), LocalDate.now());
                     messageExecutor.sendMessage(sendMessage);
-                    messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
                 }
+                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
             }
 
-            if (userText.equals(BotCommands.GET_CHATTY.getCommand())) {
+            if (userText.equals(BotCommands.GET_STATS_ALL.getCommand())) {
                 List<Stats> top = statsService.getTopChattyUserId(message);
-                String caption = "Сурăх тути çиекеннисем:\n";
+                String caption = "Паянхи статистика:\n";
                 SendMessage sendMessage = new SendMessage();
                 StringBuilder text = new StringBuilder();
                 text.append(caption);
@@ -98,7 +99,6 @@ public class MessageHandler implements Handler<Message> {
                     User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stats.getUserId()).getUser();
                     String firstName = user.getFirstName();
                     String lastName = user.getLastName();
-                    sendMessage.setChatId(message.getChatId());
                     MessageEntity messageEntity = new MessageEntity();
                     messageEntity.setUser(user);
                     messageEntity.setOffset(text.length());
@@ -108,10 +108,46 @@ public class MessageHandler implements Handler<Message> {
                     messageEntity.setType("text_mention");
                     messageEntities.add(messageEntity);
                 });
-                sendMessage.setEntities(messageEntities);
-                sendMessage.setText(text.toString());
+                if (messageEntities.isEmpty()){
+                    sendMessage.setText("Тем çирман паян...");
+                } else {
+                    sendMessage.setEntities(messageEntities);
+                    sendMessage.setText(text.toString());
+                }
+                sendMessage.setChatId(chatId);
                 messageExecutor.sendMessage(sendMessage);
-                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
+                messageExecutor.deleteMessage(chatId, message.getMessageId());
+            }
+
+            if (userText.equals(BotCommands.GET_CHATTY.getCommand())) {
+                List<Stats> top = statsService.getTop10ChattyUserId(message);
+                String caption = "Сурăх тути çиекеннисем:\n";
+                SendMessage sendMessage = new SendMessage();
+                StringBuilder text = new StringBuilder();
+                text.append(caption);
+                ArrayList<MessageEntity> messageEntities = new ArrayList<>();
+                top.forEach(stats -> {
+                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stats.getUserId()).getUser();
+                    String firstName = user.getFirstName();
+                    String lastName = user.getLastName();
+                    MessageEntity messageEntity = new MessageEntity();
+                    messageEntity.setUser(user);
+                    messageEntity.setOffset(text.length());
+                    String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + stats.getCount() + ")" + "\n";
+                    text.append(userIdentityText);
+                    messageEntity.setLength(userIdentityText.length());
+                    messageEntity.setType("text_mention");
+                    messageEntities.add(messageEntity);
+                });
+                if (messageEntities.isEmpty()){
+                    sendMessage.setText("Тем çирман паян...");
+                } else {
+                    sendMessage.setEntities(messageEntities);
+                    sendMessage.setText(text.toString());
+                }
+                sendMessage.setChatId(chatId);
+                messageExecutor.sendMessage(sendMessage);
+                messageExecutor.deleteMessage(chatId, message.getMessageId());
             }
         }
         statsService.processNewChatMembers(message);

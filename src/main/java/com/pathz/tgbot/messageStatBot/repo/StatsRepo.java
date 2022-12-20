@@ -17,6 +17,11 @@ public interface StatsRepo extends JpaRepository<Stats, Long> {
 
     List<Stats> findFirst10ByChatIdAndDateOrderByCountDesc(String chatId, LocalDate date);
 
+    List<Stats> findByChatIdAndDateOrderByCountDesc(String chatId, LocalDate date);
+
     @Query("select distinct s.userId from Stats s where s.chatId=?1")
     List<String> findDistinctUserIdByChatId(String chatId);
+
+    @Query("select distinct s.chatId from Stats s")
+    List<String> findDistinctChatId();
 }

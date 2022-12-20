@@ -72,8 +72,16 @@ public class StatsService {
         return distinctUserIdByChatId.get(i);
     }
 
-    public List<Stats> getTopChattyUserId(Message message) {
+    public List<Stats> getTop10ChattyUserId(Message message) {
         return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(message.getChatId().toString(), LocalDate.now());
+    }
+
+    public List<Stats> getTopChattyUserId(Message message) {
+        return statsRepo.findByChatIdAndDateOrderByCountDesc(message.getChatId().toString(), LocalDate.now());
+    }
+
+    public List<Stats> getTop10ChattyUserId(String chatId) {
+        return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId, LocalDate.now());
     }
 
     private void processCounting(String chatId, String userId, String userName) {
@@ -88,4 +96,7 @@ public class StatsService {
         }
     }
 
+    public List<String> findAllChats() {
+        return statsRepo.findDistinctChatId();
+    }
 }
