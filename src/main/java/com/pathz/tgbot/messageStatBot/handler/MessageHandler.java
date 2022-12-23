@@ -66,8 +66,8 @@ public class MessageHandler implements Handler<Message> {
                     sendMessage.setChatId(chatId);
                     messageExecutor.sendMessage(sendMessage);
                 }else {
-                    String stinky = statsService.getStinky(message);
-                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stinky).getUser();
+                    String stinkyUserId = statsService.getStinky(message);
+                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stinkyUserId).getUser();
                     String firstName = user.getFirstName();
                     String lastName = user.getLastName();
                     SendMessage sendMessage = new SendMessage();
@@ -82,7 +82,7 @@ public class MessageHandler implements Handler<Message> {
                     messageEntity.setType("text_mention");
                     sendMessage.setEntities(List.of(messageEntity));
                     sendMessage.setText(text);
-                    stinkyService.save(chatId.toString(), userId.toString(), LocalDate.now());
+                    stinkyService.save(chatId.toString(), stinkyUserId, LocalDate.now());
                     messageExecutor.sendMessage(sendMessage);
                 }
                 messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
