@@ -13,13 +13,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Component
 public class MessageHandler implements Handler<Message> {
@@ -41,8 +40,16 @@ public class MessageHandler implements Handler<Message> {
 
     @Override
     public void choose(Message message) {
-        System.out.print(message.getFrom() + " : ");
-        System.out.println(message.getText());
+        User sender = message.getFrom();
+        List<MessageEntity> entities = message.getEntities();
+        String from = MessageFormat.format("{0} {1} ({2})", sender.getFirstName(), sender.getLastName(), sender.getUserName());
+        System.out.println(from + " : " + message.getText());
+        if (Objects.nonNull(entities) && entities.size()>0) {
+            System.out.print("entities: ");
+            entities.forEach(messageEntity -> {
+                System.out.println(messageEntity.getUrl());
+            });
+        }
         if (message.hasText()) {
             String userText = message.getText();
             Long chatId = message.getChatId();
