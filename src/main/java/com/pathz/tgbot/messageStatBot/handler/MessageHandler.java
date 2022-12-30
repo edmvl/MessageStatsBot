@@ -73,7 +73,7 @@ public class MessageHandler implements Handler<Message> {
                     sendMessage.setChatId(chatId);
                     messageExecutor.sendMessage(sendMessage);
                 }else {
-                    String stinkyUserId = statsService.getStinky(message);
+                    String stinkyUserId = statsService.getStinky(message.getChatId().toString());
                     User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stinkyUserId).getUser();
                     String firstName = user.getFirstName();
                     String lastName = user.getLastName();

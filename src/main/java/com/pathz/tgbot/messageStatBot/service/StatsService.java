@@ -66,8 +66,8 @@ public class StatsService {
         statsRepo.delete(byUserIdAndChatId);
     }
 
-    public String getStinky(Message message) {
-        List<String> distinctUserIdByChatId = statsRepo.findDistinctUserIdByChatId(message.getChatId().toString());
+    public String getStinky(String chatId) {
+        List<String> distinctUserIdByChatId = statsRepo.findDistinctUserIdByChatId(chatId);
         int i = (int) (Math.random() * distinctUserIdByChatId.size());
         return distinctUserIdByChatId.get(i);
     }
