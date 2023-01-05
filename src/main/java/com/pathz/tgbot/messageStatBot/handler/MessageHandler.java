@@ -6,6 +6,7 @@ import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
 import com.pathz.tgbot.messageStatBot.service.StinkyService;
 import com.pathz.tgbot.messageStatBot.util.BotCommands;
+import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -41,15 +42,8 @@ public class MessageHandler implements Handler<Message> {
     @Override
     public void choose(Message message) {
         User sender = message.getFrom();
-        List<MessageEntity> entities = message.getEntities();
-        String from = MessageFormat.format("{0} {1} ({2})", sender.getFirstName(), sender.getLastName(), sender.getUserName());
+        String from = MessageFormatter.trimNull(sender.getFirstName(), sender.getLastName(), "(" + sender.getUserName() + ")");
         System.out.println(from + " : " + message.getText());
-        if (Objects.nonNull(entities) && entities.size()>0) {
-            System.out.print("entities: ");
-            entities.forEach(messageEntity -> {
-                System.out.println(messageEntity.getUrl());
-            });
-        }
         if (message.hasText()) {
             String userText = message.getText();
             Long chatId = message.getChatId();
@@ -67,12 +61,12 @@ public class MessageHandler implements Handler<Message> {
 
             if (userText.equals(BotCommands.GET_STINKY_ASS.getCommand())) {
                 Stinky existedStinky = stinkyService.findByMessage(chatId.toString(), LocalDate.now());
-                if (Objects.nonNull(existedStinky)){
+                if (Objects.nonNull(existedStinky)) {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setText("Паянхи шăршлă кута тупнă");
                     sendMessage.setChatId(chatId);
                     messageExecutor.sendMessage(sendMessage);
-                }else {
+                } else {
                     String stinkyUserId = statsService.getStinky(message.getChatId().toString());
                     User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stinkyUserId).getUser();
                     String firstName = user.getFirstName();
@@ -115,7 +109,7 @@ public class MessageHandler implements Handler<Message> {
                     messageEntity.setType("text_mention");
                     messageEntities.add(messageEntity);
                 });
-                if (messageEntities.isEmpty()){
+                if (messageEntities.isEmpty()) {
                     sendMessage.setText("Тем çирман паян...");
                 } else {
                     sendMessage.setEntities(messageEntities);
@@ -146,7 +140,7 @@ public class MessageHandler implements Handler<Message> {
                     messageEntity.setType("text_mention");
                     messageEntities.add(messageEntity);
                 });
-                if (messageEntities.isEmpty()){
+                if (messageEntities.isEmpty()) {
                     sendMessage.setText("Тем çирман паян...");
                 } else {
                     sendMessage.setEntities(messageEntities);
