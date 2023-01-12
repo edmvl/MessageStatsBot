@@ -61,19 +61,19 @@ public class MessageHandler implements Handler<Message> {
 
             if (userText.equals(BotCommands.GET_STINKY_ASS.getCommand())) {
                 Stinky existedStinky = stinkyService.findByMessage(chatId.toString(), LocalDate.now());
+                SendMessage sendMessage = new SendMessage();
+                String text = "";
                 if (Objects.nonNull(existedStinky)) {
-                    SendMessage sendMessage = new SendMessage();
-                    sendMessage.setText("Паянхи шăршлă кута тупнă");
-                    sendMessage.setChatId(chatId);
-                    messageExecutor.sendMessage(sendMessage);
+                    text = "Паянхи шăршлă кута тупнă";
                 } else {
-                    String stinkyUserId = statsService.getStinky(message.getChatId().toString());
-                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stinkyUserId).getUser();
+                    String stinkyUserId = statsService.getStinky(chatId.toString());
+                    User user = null;
+                    while (Objects.isNull(user)){
+                        user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId).getUser();
+                    }
                     String firstName = user.getFirstName();
                     String lastName = user.getLastName();
-                    SendMessage sendMessage = new SendMessage();
-                    String text = "Кунăн кучĕ питĕ шăршлă:\n";
-                    sendMessage.setChatId(message.getChatId());
+                    text = "Кунăн кучĕ питĕ шăршлă:\n";
                     MessageEntity messageEntity = new MessageEntity();
                     messageEntity.setUser(user);
                     messageEntity.setOffset(text.length());
@@ -82,10 +82,11 @@ public class MessageHandler implements Handler<Message> {
                     messageEntity.setLength(userIdentityText.length());
                     messageEntity.setType("text_mention");
                     sendMessage.setEntities(List.of(messageEntity));
-                    sendMessage.setText(text);
                     stinkyService.save(chatId.toString(), stinkyUserId, LocalDate.now());
-                    messageExecutor.sendMessage(sendMessage);
                 }
+                sendMessage.setText(text);
+                sendMessage.setChatId(chatId);
+                messageExecutor.sendMessage(sendMessage);
                 messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
             }
 
