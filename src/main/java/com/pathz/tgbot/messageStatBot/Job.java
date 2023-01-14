@@ -86,4 +86,30 @@ public class Job {
             }
         });
     }
+
+    @Scheduled(cron = "0 0 8-23 * * ?")
+    public void sendReminder() {
+        List<String> allChats = statsService.findAllChats();
+        String artemiiUserId = "1743091568";
+        LocalDate date = LocalDate.of(2023, 1, 11);
+        LocalDate currentDate = LocalDate.now();
+        allChats.forEach(chatId -> {
+            User user = messageExecutor.searchUsersInChat(chatId, artemiiUserId).getUser();
+            String firstName = user.getFirstName();
+            String lastName = user.getLastName();
+            SendMessage sendMessage = new SendMessage();
+            String text = "Прошло " + date.datesUntil(currentDate).count() + " дней, как обещал спеть ";
+            sendMessage.setChatId(chatId);
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setUser(user);
+            messageEntity.setOffset(text.length());
+            String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
+            text += userIdentityText;
+            messageEntity.setLength(userIdentityText.length());
+            messageEntity.setType("text_mention");
+            sendMessage.setEntities(List.of(messageEntity));
+            sendMessage.setText(text);
+            messageExecutor.sendMessage(sendMessage);
+        });
+    }
 }
