@@ -28,6 +28,9 @@ public class Stats {
     @Column(name = "login")
     String login;
 
+    @Column(name = "name")
+    String name;
+
     @Column(name = "count")
     Integer count;
 

@@ -19,6 +19,8 @@ public class StatsDto {
     int count;
     String login;
 
+    String name;
+
     @Override
     public String toString() {
         return chatId + "," + userId + ": " + count;

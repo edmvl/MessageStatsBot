@@ -24,4 +24,7 @@ public interface StatsRepo extends JpaRepository<Stats, Long> {
 
     @Query("select distinct s.chatId from Stats s")
     List<String> findDistinctChatId();
+
+/*    @Query("select sum(s.count) as sum, s.date from Stats s  where s.chatId=?1 group by date order by s.sum desc limit 10")
+    List<String> findTopChattyDays();*/
 }

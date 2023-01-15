@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class StatsDtoMapper {
 
     public StatsDto mapToDto(Stats stats) {
-        return new StatsDto(stats.getChatId(), stats.getUserId(), stats.getDate(), stats.getCount(), stats.getLogin());
+        return new StatsDto(stats.getChatId(), stats.getUserId(), stats.getDate(), stats.getCount(), stats.getLogin(), stats.getName());
     }
 
     public Stats mapToEntity(StatsDto statsDto) {
@@ -18,6 +18,7 @@ public class StatsDtoMapper {
         stats.setDate(statsDto.getDate());
         stats.setCount(statsDto.getCount());
         stats.setLogin(statsDto.getLogin());
+        stats.setName(statsDto.getName());
         return stats;
     }
 }

@@ -8,6 +8,7 @@ import com.pathz.tgbot.messageStatBot.service.StinkyService;
 import com.pathz.tgbot.messageStatBot.util.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -32,7 +33,7 @@ public class MessageHandler implements Handler<Message> {
 
     @Value("${telegram.bot.username}")
     private String botUsername;
-
+    @Lazy
     public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService) {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
@@ -44,112 +45,34 @@ public class MessageHandler implements Handler<Message> {
         User sender = message.getFrom();
         String from = MessageFormatter.trimNull(sender.getFirstName(), sender.getLastName(), "(" + sender.getUserName() + ")");
         System.out.println(from + " : " + message.getText());
+        Long chatId = message.getChatId();
+        Integer messageId = message.getMessageId();
+        Long userId = message.getFrom().getId();
         if (message.hasText()) {
             String userText = message.getText();
-            Long chatId = message.getChatId();
-            Long userId = message.getFrom().getId();
             String userName = message.getFrom().getUserName();
 
             if (!userText.contains("/")) {
-                statsService.processStatistic(chatId.toString(), userId.toString(), userName);
+                statsService.processStatistic(chatId.toString(), userId.toString(), userName, from);
             }
             userText = String.join("", userText.split("@" + botUsername));
             if (userText.equals(BotCommands.HELP_COMMAND.getCommand())) {
                 send(message, statsService.getHelp());
-                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
             }
 
             if (userText.equals(BotCommands.GET_STINKY_ASS.getCommand())) {
-                Stinky existedStinky = stinkyService.findByMessage(chatId.toString(), LocalDate.now());
-                SendMessage sendMessage = new SendMessage();
-                String text = "";
-                if (Objects.nonNull(existedStinky)) {
-                    text = "Паянхи шăршлă кута тупнă";
-                } else {
-                    String stinkyUserId = statsService.getStinky(chatId.toString());
-                    User user = null;
-                    while (Objects.isNull(user)){
-                        user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId).getUser();
-                    }
-                    String firstName = user.getFirstName();
-                    String lastName = user.getLastName();
-                    text = "Кунăн кучĕ питĕ шăршлă:\n";
-                    MessageEntity messageEntity = new MessageEntity();
-                    messageEntity.setUser(user);
-                    messageEntity.setOffset(text.length());
-                    String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
-                    text += userIdentityText;
-                    messageEntity.setLength(userIdentityText.length());
-                    messageEntity.setType("text_mention");
-                    sendMessage.setEntities(List.of(messageEntity));
-                    stinkyService.save(chatId.toString(), stinkyUserId, LocalDate.now());
-                }
-                sendMessage.setText(text);
-                sendMessage.setChatId(chatId);
-                messageExecutor.sendMessage(sendMessage);
-                messageExecutor.deleteMessage(message.getChatId(), message.getMessageId());
+                stinkyService.sendStinky(chatId, messageId);
             }
 
             if (userText.equals(BotCommands.GET_STATS_ALL.getCommand())) {
-                List<Stats> top = statsService.getTopChattyUserId(message);
-                String caption = "Паянхи статистика:\n";
-                SendMessage sendMessage = new SendMessage();
-                StringBuilder text = new StringBuilder();
-                text.append(caption);
-                ArrayList<MessageEntity> messageEntities = new ArrayList<>();
-                top.forEach(stats -> {
-                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stats.getUserId()).getUser();
-                    String firstName = user.getFirstName();
-                    String lastName = user.getLastName();
-                    MessageEntity messageEntity = new MessageEntity();
-                    messageEntity.setUser(user);
-                    messageEntity.setOffset(text.length());
-                    String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + stats.getCount() + ")" + "\n";
-                    text.append(userIdentityText);
-                    messageEntity.setLength(userIdentityText.length());
-                    messageEntity.setType("text_mention");
-                    messageEntities.add(messageEntity);
-                });
-                if (messageEntities.isEmpty()) {
-                    sendMessage.setText("Тем çирман паян...");
-                } else {
-                    sendMessage.setEntities(messageEntities);
-                    sendMessage.setText(text.toString());
-                }
-                sendMessage.setChatId(chatId);
-                messageExecutor.sendMessage(sendMessage);
-                messageExecutor.deleteMessage(chatId, message.getMessageId());
+                statsService.sendStats(chatId, messageId);
             }
 
             if (userText.equals(BotCommands.GET_CHATTY.getCommand())) {
-                List<Stats> top = statsService.getTop10ChattyUserId(message);
-                String caption = "Сурăх тути çиекеннисем:\n";
-                SendMessage sendMessage = new SendMessage();
-                StringBuilder text = new StringBuilder();
-                text.append(caption);
-                ArrayList<MessageEntity> messageEntities = new ArrayList<>();
-                top.forEach(stats -> {
-                    User user = messageExecutor.searchUsersInChat(message.getChatId().toString(), stats.getUserId()).getUser();
-                    String firstName = user.getFirstName();
-                    String lastName = user.getLastName();
-                    MessageEntity messageEntity = new MessageEntity();
-                    messageEntity.setUser(user);
-                    messageEntity.setOffset(text.length());
-                    String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + stats.getCount() + ")" + "\n";
-                    text.append(userIdentityText);
-                    messageEntity.setLength(userIdentityText.length());
-                    messageEntity.setType("text_mention");
-                    messageEntities.add(messageEntity);
-                });
-                if (messageEntities.isEmpty()) {
-                    sendMessage.setText("Тем çирман паян...");
-                } else {
-                    sendMessage.setEntities(messageEntities);
-                    sendMessage.setText(text.toString());
-                }
-                sendMessage.setChatId(chatId);
-                messageExecutor.sendMessage(sendMessage);
-                messageExecutor.deleteMessage(chatId, message.getMessageId());
+                statsService.sendChatty(chatId, messageId);
+            }
+            if (userText.equals(BotCommands.GET_CHATTY_DAYS.getCommand())) {
+                statsService.sendChattyDays(chatId, messageId);
             }
         }
         statsService.processNewChatMembers(message);

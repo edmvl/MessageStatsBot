@@ -7,7 +7,9 @@ public enum BotCommands {
     GET_STINKY_ASS("/pohlo", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
     GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе"),
 
-    GET_STATS_ALL("/stat", "вся статистика");
+    GET_STATS_ALL("/stat", "вся статистика"),
+
+    GET_CHATTY_DAYS("/days", "статистика по дням");
 
     public String getCommand() {
         return command;
