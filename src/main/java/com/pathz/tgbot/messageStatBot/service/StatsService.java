@@ -1,8 +1,10 @@
 package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.StatsDto;
+import com.pathz.tgbot.messageStatBot.entity.Settings;
 import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
+import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.pathz.tgbot.messageStatBot.util.BotCommands.values;
@@ -24,11 +23,13 @@ import static com.pathz.tgbot.messageStatBot.util.BotCommands.values;
 public class StatsService {
 
     private final StatsRepo statsRepo;
+    private final SettingsRepo settingsRepo;
     private final StatsDtoMapper statsDtoMapper;
     private final MessageExecutor messageExecutor;
 
-    public StatsService(StatsRepo statsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor) {
+    public StatsService(StatsRepo statsRepo, SettingsRepo settingsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor) {
         this.statsRepo = statsRepo;
+        this.settingsRepo = settingsRepo;
         this.statsDtoMapper = statsDtoMapper;
         this.messageExecutor = messageExecutor;
     }
@@ -92,6 +93,10 @@ public class StatsService {
     }
 
     private void processCounting(String chatId, String userId, String userName, String name) {
+        Settings byChatIdAndUserId = settingsRepo.findByChatIdAndUserId(chatId, userId);
+        if (Objects.nonNull(byChatIdAndUserId) && byChatIdAndUserId.getSkipStats()) {
+            return;
+        }
         if (isExistByMessage(userId, chatId, LocalDate.now())) {
             Stats found = statsRepo.findByUserIdAndChatIdAndDate(userId, chatId, LocalDate.now());
             found.setCount(found.getCount() + 1);
@@ -144,7 +149,15 @@ public class StatsService {
         messageExecutor.sendMessage(sendMessage);
     }
 
-    public static void addMessageEntity(
+    private void sendReply(Long chatId, String text, Integer messId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+        sendMessage.setReplyToMessageId(messId);
+        messageExecutor.sendMessage(sendMessage);
+    }
+
+    private static void addMessageEntity(
             StringBuilder text, ArrayList<MessageEntity> messageEntities, Stats stats, User user, String firstName, String lastName
     ) {
         MessageEntity messageEntity = new MessageEntity();
@@ -180,5 +193,20 @@ public class StatsService {
     public void sendChattyDays(Long chatId, Integer messageId) {
         sendChattyDays(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
+    }
+
+    public void skipStats(Long chatId, Long userId, Integer messageId) {
+        Settings settings = settingsRepo.findByChatIdAndUserId(chatId.toString(), userId.toString());
+        //User user = messageExecutor.searchUsersInChat(chatId.toString(), userId.toString()).getUser();
+        if (Objects.nonNull(settings)){
+            settings.setSkipStats(true);
+        }else {
+            settings = new Settings();
+            settings.setChatId(String.valueOf(chatId));
+            settings.setUserId(String.valueOf(userId));
+            settings.setSkipStats(true);
+        }
+        settingsRepo.save(settings);
+        sendReply(chatId, "Вы добавлены в спиок игнора статистики", messageId);
     }
 }

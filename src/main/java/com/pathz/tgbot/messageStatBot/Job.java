@@ -33,22 +33,7 @@ public class Job {
     public void sendStats() {
         List<String> allChats = statsService.findAllChats();
         allChats.forEach(chatId -> {
-            List<Stats> top = statsService.getTop10ChattyUserId(chatId);
-            String caption = "Сурăх тути çиекеннисем:\n";
-            SendMessage sendMessage = new SendMessage();
-            StringBuilder text = new StringBuilder();
-            text.append(caption);
-            ArrayList<MessageEntity> messageEntities = new ArrayList<>();
-            top.forEach(stats -> {
-                User user = messageExecutor.searchUsersInChat(chatId, stats.getUserId()).getUser();
-                String firstName = user.getFirstName();
-                String lastName = user.getLastName();
-                sendMessage.setChatId(chatId);
-                StatsService.addMessageEntity(text, messageEntities, stats, user, firstName, lastName);
-            });
-            sendMessage.setEntities(messageEntities);
-            sendMessage.setText(text.toString());
-            messageExecutor.sendMessage(sendMessage);
+            statsService.sendChatty(Long.valueOf(chatId));
         });
     }
 
@@ -57,6 +42,32 @@ public class Job {
         List<String> allChats = statsService.findAllChats();
         allChats.forEach(chatId -> {
             stinkyService.sendStinky(Long.valueOf(chatId));
+        });
+    }
+
+    @Scheduled(cron = "0 00 20,21 * * ?")
+    public void sendReminder() {
+        List<String> allChats = statsService.findAllChats();
+        String evgeniiUserId = "2049013592";
+        LocalDate date = LocalDate.of(2023, 1, 16);
+        LocalDate currentDate = LocalDate.now();
+        allChats.forEach(chatId -> {
+            User user = messageExecutor.searchUsersInChat(chatId, evgeniiUserId).getUser();
+            String firstName = user.getFirstName();
+            String lastName = user.getLastName();
+            SendMessage sendMessage = new SendMessage();
+            String text = "Прошло " + date.datesUntil(currentDate).count() + " дней, как обещал начать заниматься спортом ";
+            sendMessage.setChatId(chatId);
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setUser(user);
+            messageEntity.setOffset(text.length());
+            String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
+            text += userIdentityText;
+            messageEntity.setLength(userIdentityText.length());
+            messageEntity.setType("text_mention");
+            sendMessage.setEntities(List.of(messageEntity));
+            sendMessage.setText(text);
+            messageExecutor.sendMessage(sendMessage);
         });
     }
 }

@@ -9,6 +9,7 @@ public enum BotCommands {
 
     GET_STATS_ALL("/stat", "вся статистика"),
 
+    SKIP_STATS("/skipstats", "не учитывать в статистике"),
     GET_CHATTY_DAYS("/days", "статистика по дням");
 
     public String getCommand() {

@@ -74,6 +74,9 @@ public class MessageHandler implements Handler<Message> {
             if (userText.equals(BotCommands.GET_CHATTY_DAYS.getCommand())) {
                 statsService.sendChattyDays(chatId, messageId);
             }
+            if (userText.equals(BotCommands.SKIP_STATS.getCommand())) {
+                statsService.skipStats(chatId, userId, messageId);
+            }
         }
         statsService.processNewChatMembers(message);
         statsService.processLeftChatMembers(message);
