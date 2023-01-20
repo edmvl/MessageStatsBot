@@ -54,7 +54,7 @@ public class StatsService {
             return;
         }
         newChatMembers.forEach(user -> {
-            if (!statsRepo.existsByUserIdAndChatIdAndAndDate(message.getChatId().toString(), user.getId().toString(), LocalDate.now())) {
+            if (!statsRepo.existsByUserIdAndChatIdAndAndDate(user.getId().toString(), message.getChatId().toString(), LocalDate.now())) {
                 StatsDto statsDto = new StatsDto(
                         message.getChatId().toString(),
                         user.getId().toString(),
