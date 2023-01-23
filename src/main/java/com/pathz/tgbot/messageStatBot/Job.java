@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,27 +48,37 @@ public class Job {
 
     @Scheduled(cron = "0 00 20,21 * * ?")
     public void sendReminder() {
-        List<String> allChats = statsService.findAllChats();
+        String chatId = "-1001868766001";
         String evgeniiUserId = "2049013592";
         LocalDate date = LocalDate.of(2023, 1, 16);
         LocalDate currentDate = LocalDate.now();
-        allChats.forEach(chatId -> {
-            User user = messageExecutor.searchUsersInChat(chatId, evgeniiUserId).getUser();
-            String firstName = user.getFirstName();
-            String lastName = user.getLastName();
-            SendMessage sendMessage = new SendMessage();
-            String text = "Прошло " + date.datesUntil(currentDate).count() + " дней, как обещал начать заниматься спортом ";
-            sendMessage.setChatId(chatId);
-            MessageEntity messageEntity = new MessageEntity();
-            messageEntity.setUser(user);
-            messageEntity.setOffset(text.length());
-            String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
-            text += userIdentityText;
-            messageEntity.setLength(userIdentityText.length());
-            messageEntity.setType("text_mention");
-            sendMessage.setEntities(List.of(messageEntity));
-            sendMessage.setText(text);
-            messageExecutor.sendMessage(sendMessage);
-        });
+        User user = messageExecutor.searchUsersInChat(chatId, evgeniiUserId).getUser();
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        SendMessage sendMessage = new SendMessage();
+        String text = "Прошло " + date.datesUntil(currentDate).count() + " дней, как обещал начать заниматься спортом ";
+        sendMessage.setChatId(chatId);
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setUser(user);
+        messageEntity.setOffset(text.length());
+        String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
+        text += userIdentityText;
+        messageEntity.setLength(userIdentityText.length());
+        messageEntity.setType("text_mention");
+        sendMessage.setEntities(List.of(messageEntity));
+        sendMessage.setText(text);
+        messageExecutor.sendMessage(sendMessage);
+    }
+
+    @Scheduled(cron = "0 48 10,22 * * ?")
+    public void sendSpringReminder() {
+        String chatId = "-1001868766001";
+        LocalDate date = LocalDate.of(2023, 3, 1);
+        LocalDate currentDate = LocalDate.now();
+        SendMessage sendMessage = new SendMessage();
+        String text = "До весны осталось " + currentDate.datesUntil(date).count() + " дней";
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+        messageExecutor.sendMessage(sendMessage);
     }
 }
