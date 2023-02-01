@@ -57,6 +57,7 @@ public class StinkyService {
             String stinkyUserId = getStinky(chatId.toString());
             User user = null;
             while (Objects.isNull(user)){
+                stinkyUserId = getStinky(chatId.toString());
                 user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId).getUser();
             }
             String firstName = user.getFirstName();
