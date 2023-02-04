@@ -1,5 +1,6 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.ChattyDaysDto;
 import com.pathz.tgbot.messageStatBot.dto.StatsDto;
 import com.pathz.tgbot.messageStatBot.entity.Settings;
 import com.pathz.tgbot.messageStatBot.entity.Stats;
@@ -14,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -177,7 +179,13 @@ public class StatsService {
     }
 
     public void sendChattyDays(Long chatId) {
-
+        List<ChattyDaysDto> topChattyDays = statsRepo.findTopChattyDays(chatId.toString());
+        String message = topChattyDays.stream()
+                .map(dto -> dto.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " (" + dto.getSm() + " хут пакăлтатнă)").collect(Collectors.joining("\n"));
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("Сурăх тути кунĕсем:\n" + message);
+        messageExecutor.sendMessage(sendMessage);
     }
 
     public void sendStats(Long chatId, Integer messageId) {
