@@ -135,7 +135,7 @@ public class StatsService {
         top.forEach(stats -> {
             User user = null;
             while (Objects.isNull(user)){
-                user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId()).getUser();
+                user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
             }
             String firstName = user.getFirstName();
             String lastName = user.getLastName();
