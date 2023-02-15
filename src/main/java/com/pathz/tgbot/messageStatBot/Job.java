@@ -1,21 +1,14 @@
 package com.pathz.tgbot.messageStatBot;
 
-import com.pathz.tgbot.messageStatBot.entity.Stats;
-import com.pathz.tgbot.messageStatBot.entity.Stinky;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
 import com.pathz.tgbot.messageStatBot.service.StinkyService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public class Job {
@@ -48,13 +41,15 @@ public class Job {
 
     @Scheduled(cron = "0 48 10,22 * * ?")
     public void sendSpringReminder() {
-        String chatId = "-1001868766001";
-        LocalDate date = LocalDate.of(2023, 3, 1);
-        LocalDate currentDate = LocalDate.now();
-        SendMessage sendMessage = new SendMessage();
-        String text = "До весны осталось " + currentDate.datesUntil(date).count() + " дней";
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(text);
-        messageExecutor.sendMessage(sendMessage);
+        List<String> chatIds = List.of("-1001868766001", "-1001774169728");
+        chatIds.forEach(chatId -> {
+            LocalDate date = LocalDate.of(2023, 3, 1);
+            LocalDate currentDate = LocalDate.now();
+            SendMessage sendMessage = new SendMessage();
+            String text = "До весны осталось " + currentDate.datesUntil(date).count() + " дней";
+            sendMessage.setChatId(chatId);
+            sendMessage.setText(text);
+            messageExecutor.sendMessage(sendMessage);
+        });
     }
 }

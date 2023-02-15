@@ -8,14 +8,17 @@ import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
+import org.springframework.format.datetime.standard.TemporalAccessorParser;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import javax.swing.text.DateFormatter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,8 +89,8 @@ public class StatsService {
         return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId.toString(), LocalDate.now());
     }
 
-    public List<Stats> getTopChattyUserId(Long chatId) {
-        return statsRepo.findByChatIdAndDateOrderByCountDesc(chatId.toString(), LocalDate.now());
+    public List<Stats> getTopChattyUserId(Long chatId, LocalDate date) {
+        return statsRepo.findByChatIdAndDateOrderByCountDesc(chatId.toString(), date);
     }
 
     public List<Stats> getTop10ChattyUserId(String chatId) {
@@ -121,9 +124,12 @@ public class StatsService {
         return statsRepo.findDistinctChatId();
     }
 
-    public void sendStats(Long chatId){
-        List<Stats> top = getTopChattyUserId(chatId);
-        String caption = "Паянхи статистика:\n";
+    public void sendStats(Long chatId, LocalDate date) {
+        List<Stats> top = getTopChattyUserId(chatId, date);
+        String caption = "Статистика на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n";
+        if (date.equals(LocalDate.now())) {
+            caption = "Паянхи статистика:\n";
+        }
         sendMessage(chatId, top, caption);
     }
 
@@ -133,12 +139,9 @@ public class StatsService {
         text.append(caption);
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
-            User user = null;
-            while (Objects.isNull(user)){
-                user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
-            }
-            String firstName = user.getFirstName();
-            String lastName = user.getLastName();
+            User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
+            String firstName = Objects.nonNull(user) ? user.getFirstName() : "deleted";
+            String lastName = Objects.nonNull(user) ? user.getLastName() : "deleted";
             addMessageEntity(text, messageEntities, stats, user, firstName, lastName);
         });
         if (messageEntities.isEmpty()) {
@@ -163,12 +166,16 @@ public class StatsService {
             StringBuilder text, ArrayList<MessageEntity> messageEntities, Stats stats, User user, String firstName, String lastName
     ) {
         MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setUser(user);
         messageEntity.setOffset(text.length());
         String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + stats.getCount() + ")" + "\n";
         text.append(userIdentityText);
         messageEntity.setLength(userIdentityText.length());
-        messageEntity.setType("text_mention");
+        if (Objects.nonNull(user)) {
+            messageEntity.setUser(user);
+            messageEntity.setType("text_mention");
+        } else {
+            messageEntity.setType("mention");
+        }
         messageEntities.add(messageEntity);
     }
 
@@ -188,8 +195,8 @@ public class StatsService {
         messageExecutor.sendMessage(sendMessage);
     }
 
-    public void sendStats(Long chatId, Integer messageId) {
-        sendStats(chatId);
+    public void sendStats(Long chatId, Integer messageId, LocalDate date) {
+        sendStats(chatId, date);
         messageExecutor.deleteMessage(chatId, messageId);
     }
 
@@ -205,16 +212,22 @@ public class StatsService {
 
     public void skipStats(Long chatId, Long userId, Integer messageId) {
         Settings settings = settingsRepo.findByChatIdAndUserId(chatId.toString(), userId.toString());
-        //User user = messageExecutor.searchUsersInChat(chatId.toString(), userId.toString()).getUser();
-        if (Objects.nonNull(settings)){
-            settings.setSkipStats(true);
-        }else {
+        if (Objects.isNull(settings) || !Boolean.TRUE.equals(settings.getIsAdmin())) {
             settings = new Settings();
             settings.setChatId(String.valueOf(chatId));
             settings.setUserId(String.valueOf(userId));
-            settings.setSkipStats(true);
+            settings.setSkipStats(false);
+            settingsRepo.save(settings);
+            sendReply(chatId, "Доступно только администратору бота", messageId);
+            return;
         }
+        settings.setSkipStats(true);
         settingsRepo.save(settings);
         sendReply(chatId, "Вы добавлены в спиок игнора статистики", messageId);
+    }
+
+    public void sendStats(Long chatId, Integer messageId, String date) {
+        LocalDate dt = Objects.isNull(date) ? LocalDate.now() : LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        sendStats(chatId, messageId, dt);
     }
 }

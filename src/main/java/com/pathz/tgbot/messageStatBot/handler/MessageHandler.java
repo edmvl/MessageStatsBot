@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -56,25 +57,26 @@ public class MessageHandler implements Handler<Message> {
                 statsService.processStatistic(chatId.toString(), userId.toString(), userName, from);
             }
             userText = String.join("", userText.split("@" + botUsername));
-            if (userText.equals(BotCommands.HELP_COMMAND.getCommand())) {
+            if (userText.startsWith(BotCommands.HELP_COMMAND.getCommand())) {
                 send(message, statsService.getHelp());
             }
 
-            if (userText.equals(BotCommands.GET_STINKY_ASS.getCommand())) {
+            if (userText.startsWith(BotCommands.GET_STINKY_ASS.getCommand())) {
                 stinkyService.sendStinky(chatId, messageId);
             }
 
-            if (userText.equals(BotCommands.GET_STATS_ALL.getCommand())) {
-                statsService.sendStats(chatId, messageId);
+            if (userText.startsWith(BotCommands.GET_STATS_ALL.getCommand())) {
+                String[] s = userText.split(" ");
+                statsService.sendStats(chatId, messageId, s.length > 1 ? s[1] : null);
             }
 
-            if (userText.equals(BotCommands.GET_CHATTY.getCommand())) {
+            if (userText.startsWith(BotCommands.GET_CHATTY.getCommand())) {
                 statsService.sendChatty(chatId, messageId);
             }
-            if (userText.equals(BotCommands.GET_CHATTY_DAYS.getCommand())) {
+            if (userText.startsWith(BotCommands.GET_CHATTY_DAYS.getCommand())) {
                 statsService.sendChattyDays(chatId, messageId);
             }
-            if (userText.equals(BotCommands.SKIP_STATS.getCommand())) {
+            if (userText.startsWith(BotCommands.SKIP_STATS.getCommand())) {
                 statsService.skipStats(chatId, userId, messageId);
             }
         }
