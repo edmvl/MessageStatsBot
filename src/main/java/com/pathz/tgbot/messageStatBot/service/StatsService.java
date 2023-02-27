@@ -8,18 +8,18 @@ import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
-import org.springframework.format.datetime.standard.TemporalAccessorParser;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import javax.swing.text.DateFormatter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.pathz.tgbot.messageStatBot.util.BotCommands.values;

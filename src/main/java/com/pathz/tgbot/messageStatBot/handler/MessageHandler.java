@@ -1,8 +1,7 @@
 package com.pathz.tgbot.messageStatBot.handler;
 
-import com.pathz.tgbot.messageStatBot.entity.Stats;
-import com.pathz.tgbot.messageStatBot.entity.Stinky;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
+import com.pathz.tgbot.messageStatBot.service.LogService;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
 import com.pathz.tgbot.messageStatBot.service.StinkyService;
 import com.pathz.tgbot.messageStatBot.util.BotCommands;
@@ -12,15 +11,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
 @Component
@@ -29,29 +22,31 @@ public class MessageHandler implements Handler<Message> {
     private final MessageExecutor messageExecutor;
     private final StatsService statsService;
     private final StinkyService stinkyService;
+    private final LogService logService;
 
     private final Logger logger = Logger.getLogger("MessageHandler");
 
     @Value("${telegram.bot.username}")
     private String botUsername;
     @Lazy
-    public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService) {
+    public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService, LogService logService) {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
         this.stinkyService = stinkyService;
+        this.logService = logService;
     }
 
     @Override
     public void choose(Message message) {
         User sender = message.getFrom();
         String from = MessageFormatter.trimNull(sender.getFirstName(), sender.getLastName(), "(" + sender.getUserName() + ")");
-        System.out.println(from + " : " + message.getText());
         Long chatId = message.getChatId();
         Integer messageId = message.getMessageId();
         Long userId = message.getFrom().getId();
         if (message.hasText()) {
             String userText = message.getText();
             String userName = message.getFrom().getUserName();
+            logService.save(chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(), userText);
 
             if (!userText.contains("/")) {
                 statsService.processStatistic(chatId.toString(), userId.toString(), userName, from);
