@@ -91,7 +91,8 @@ public class ChallengeService {
         if (regs.isEmpty()) {
             return;
         }
-        ChallengeReg challengeReg = regs.stream().findFirst().get();
+        int random = (int) (Math.random() * regs.size()) - 1;
+        ChallengeReg challengeReg = regs.get(random);
         User user = messageExecutor.searchUsersInChat(chatId, challengeReg.getUserId());
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
