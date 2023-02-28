@@ -48,7 +48,7 @@ public class StatsService {
     }
 
     public String getHelp() {
-        return Arrays.stream(values()).map(
+        return Arrays.stream(values()).filter(c -> !c.isForAdmin()).map(
                 botCommand -> botCommand.getCommand() + " : " + botCommand.getExplainer()).collect(Collectors.joining("\n")
         );
     }

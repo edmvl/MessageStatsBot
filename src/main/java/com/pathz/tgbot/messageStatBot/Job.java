@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot;
 
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
+import com.pathz.tgbot.messageStatBot.service.ChallengeService;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
 import com.pathz.tgbot.messageStatBot.service.StinkyService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,11 +16,13 @@ public class Job {
 
     private final StatsService statsService;
     private final StinkyService stinkyService;
+    private final ChallengeService challengeService;
     private final MessageExecutor messageExecutor;
 
-    public Job(StatsService statsService, StinkyService stinkyService, MessageExecutor messageExecutor) {
+    public Job(StatsService statsService, StinkyService stinkyService, ChallengeService challengeService, MessageExecutor messageExecutor) {
         this.statsService = statsService;
         this.stinkyService = stinkyService;
+        this.challengeService = challengeService;
         this.messageExecutor = messageExecutor;
     }
 
@@ -51,5 +54,10 @@ public class Job {
             sendMessage.setText(text);
             messageExecutor.sendMessage(sendMessage);
         });
+    }
+
+    @Scheduled(cron = "0 * 8-23 * * ?")
+    public void sendChallenges() {
+        challengeService.finishAll();
     }
 }

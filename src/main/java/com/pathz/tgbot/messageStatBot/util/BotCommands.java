@@ -6,11 +6,11 @@ public enum BotCommands {
     //GET_SILENT_USERS("/шăшисенешыра", "шпиёнсене тупмала, хулăпа хĕнемелле"),
     GET_STINKY_ASS("/pohlo", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
     GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе"),
-
     GET_STATS_ALL("/stat", "вся статистика"),
-
-    SKIP_STATS("/skipstats", "не учитывать в статистике"),
-    GET_CHATTY_DAYS("/days", "статистика по дням");
+    SKIP_STATS("/skipstats", "не учитывать в статистике", true),
+    GET_CHATTY_DAYS("/days", "статистика по дням"),
+    CHALLANGE_START("/challenge", "начать розыгрыш", true),
+    CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш");
 
     public String getCommand() {
         return command;
@@ -20,11 +20,22 @@ public enum BotCommands {
         return explainer;
     }
 
+    public Boolean isForAdmin() {
+        return for_admin;
+    }
+
     private final String command;
     private final String explainer;
+    private final Boolean for_admin;
 
     BotCommands(String command, String explainer) {
         this.command = command;
         this.explainer = explainer;
+        this.for_admin = Boolean.FALSE;
+    }
+    BotCommands(String command, String explainer, Boolean for_admin) {
+        this.command = command;
+        this.explainer = explainer;
+        this.for_admin = for_admin;
     }
 }
