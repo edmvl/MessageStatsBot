@@ -46,10 +46,10 @@ public class Job {
     public void sendSpringReminder() {
         List<String> chatIds = List.of("-1001868766001", "-1001774169728");
         chatIds.forEach(chatId -> {
-            LocalDate date = LocalDate.of(2023, 3, 1);
+            LocalDate date = LocalDate.of(2023, 6, 1);
             LocalDate currentDate = LocalDate.now();
             SendMessage sendMessage = new SendMessage();
-            String text = "До весны осталось " + currentDate.datesUntil(date).count() + " дней";
+            String text = "До лета осталось " + currentDate.datesUntil(date).count() + " дней";
             sendMessage.setChatId(chatId);
             sendMessage.setText(text);
             messageExecutor.sendMessage(sendMessage);

@@ -2,6 +2,7 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.ChattyDaysDto;
 import com.pathz.tgbot.messageStatBot.dto.StatsDto;
+import com.pathz.tgbot.messageStatBot.dto.StatsViewDto;
 import com.pathz.tgbot.messageStatBot.entity.Settings;
 import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
@@ -14,8 +15,10 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -93,6 +96,12 @@ public class StatsService {
         return statsRepo.findByChatIdAndDateOrderByCountDesc(chatId.toString(), date);
     }
 
+    public List<StatsViewDto> getTopChattyWeek(Long chatId) {
+        LocalDate startDate = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+        LocalDate endDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        return statsRepo.findByChatIdAndDateBetweenOrderByCountDesc(chatId.toString(), startDate, endDate);
+    }
+
     public List<Stats> getTop10ChattyUserId(String chatId) {
         return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId, LocalDate.now());
     }
@@ -126,29 +135,51 @@ public class StatsService {
 
     public void sendStats(Long chatId, LocalDate date) {
         List<Stats> top = getTopChattyUserId(chatId, date);
-        String caption = "Статистика на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n";
+        StringBuilder text = new StringBuilder("Статистика на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n");
         if (date.equals(LocalDate.now())) {
-            caption = "Паянхи статистика:\n";
+            text = new StringBuilder("Паянхи статистика:\n");
         }
-        sendMessage(chatId, top, caption);
+        List<MessageEntity> messageEntities = getMessageEntities(top, chatId, text);
+        sendMessage(chatId, messageEntities, text.toString());
     }
 
-    private void sendMessage(Long chatId, List<Stats> top, String caption) {
-        SendMessage sendMessage = new SendMessage();
+    public void sendWeekStats(Long chatId) {
+        List<StatsViewDto> top = getTopChattyWeek(chatId);
         StringBuilder text = new StringBuilder();
-        text.append(caption);
+        text.append("Статистика за эту неделю\n");
+        List<MessageEntity> messageEntities = getMessageEntities2(top, chatId, text);
+        sendMessage(chatId, messageEntities, text.toString());
+    }
+
+    private List<MessageEntity> getMessageEntities2 (List<StatsViewDto> top, Long chatId, StringBuilder text) {
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
             User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
             String firstName = Objects.nonNull(user) ? user.getFirstName() : "deleted";
             String lastName = Objects.nonNull(user) ? user.getLastName() : "deleted";
-            addMessageEntity(text, messageEntities, stats, user, firstName, lastName);
+            messageEntities.add(getMessageEntity(text, stats.getCount(), user, firstName, lastName));
         });
+        return messageEntities;
+    }
+
+    private List<MessageEntity> getMessageEntities (List<Stats> top, Long chatId, StringBuilder text) {
+        ArrayList<MessageEntity> messageEntities = new ArrayList<>();
+        top.forEach(stats -> {
+            User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
+            String firstName = Objects.nonNull(user) ? user.getFirstName() : "deleted";
+            String lastName = Objects.nonNull(user) ? user.getLastName() : "deleted";
+            messageEntities.add(getMessageEntity(text, stats.getCount(), user, firstName, lastName));
+        });
+        return messageEntities;
+    }
+
+    private void sendMessage(Long chatId, List<MessageEntity> messageEntities, String text) {
+        SendMessage sendMessage = new SendMessage();
         if (messageEntities.isEmpty()) {
             sendMessage.setText("Тем çирман паян...");
         } else {
             sendMessage.setEntities(messageEntities);
-            sendMessage.setText(text.toString());
+            sendMessage.setText(text);
         }
         sendMessage.setChatId(chatId);
         messageExecutor.sendMessage(sendMessage);
@@ -162,12 +193,12 @@ public class StatsService {
         messageExecutor.sendMessage(sendMessage);
     }
 
-    private static void addMessageEntity(
-            StringBuilder text, ArrayList<MessageEntity> messageEntities, Stats stats, User user, String firstName, String lastName
+    private static MessageEntity getMessageEntity(
+            StringBuilder text, Integer count, User user, String firstName, String lastName
     ) {
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setOffset(text.length());
-        String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + stats.getCount() + ")" + "\n";
+        String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + count + ")" + "\n";
         text.append(userIdentityText);
         messageEntity.setLength(userIdentityText.length());
         if (Objects.nonNull(user)) {
@@ -176,13 +207,15 @@ public class StatsService {
         } else {
             messageEntity.setType("mention");
         }
-        messageEntities.add(messageEntity);
+        return messageEntity;
     }
 
     public void sendChatty(Long chatId) {
         List<Stats> top = getTop10ChattyUserId(chatId);
-        String caption = "Сурăх тути çиекеннисем:\n";
-        sendMessage(chatId, top, caption);
+        StringBuilder text = new StringBuilder();
+        text.append("Сурăх тути çиекеннисем:\n");
+        List<MessageEntity> messageEntities = getMessageEntities(top, chatId, text);
+        sendMessage(chatId, messageEntities, text.toString());
     }
 
     public void sendChattyDays(Long chatId) {
@@ -197,6 +230,11 @@ public class StatsService {
 
     public void sendStats(Long chatId, Integer messageId, LocalDate date) {
         sendStats(chatId, date);
+        messageExecutor.deleteMessage(chatId, messageId);
+    }
+
+    public void sendWeekStats(Long chatId, Integer messageId) {
+        sendWeekStats(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
     }
 

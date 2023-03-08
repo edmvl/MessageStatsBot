@@ -1,16 +1,16 @@
 package com.pathz.tgbot.messageStatBot.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import java.sql.Date;
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class StatsDto {
 
     String chatId;

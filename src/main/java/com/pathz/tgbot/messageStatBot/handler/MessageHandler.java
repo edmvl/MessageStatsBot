@@ -70,6 +70,10 @@ public class MessageHandler implements Handler<Message> {
                 statsService.sendStats(chatId, messageId, s.length > 1 ? s[1] : null);
             }
 
+            if (userText.startsWith(BotCommands.GET_WEEK_STATS.getCommand())) {
+                statsService.sendWeekStats(chatId, messageId);
+            }
+
             if (userText.startsWith(BotCommands.GET_CHATTY.getCommand())) {
                 statsService.sendChatty(chatId, messageId);
             }
