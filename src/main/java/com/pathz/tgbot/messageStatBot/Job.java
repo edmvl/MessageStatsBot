@@ -28,23 +28,23 @@ public class Job {
 
     @Scheduled(cron = "55 59 12,23 * * ?")
     public void sendStats() {
-        List<String> allChats = statsService.findAllChats();
-        allChats.forEach(chatId -> {
+        List<String> chatIds = statsService.findAllChats();
+        chatIds.forEach(chatId -> {
             statsService.sendChatty(Long.valueOf(chatId));
         });
     }
 
     @Scheduled(cron = "0 0 10 * * ?")
     public void sendStinky() {
-        List<String> allChats = statsService.findAllChats();
-        allChats.forEach(chatId -> {
+        List<String> chatIds = statsService.findAllChats();
+        chatIds.forEach(chatId -> {
             stinkyService.sendStinky(Long.valueOf(chatId));
         });
     }
 
     @Scheduled(cron = "0 48 10,22 * * ?")
     public void sendSpringReminder() {
-        List<String> chatIds = List.of("-1001868766001", "-1001774169728");
+        List<String> chatIds = statsService.findAllChats();
         chatIds.forEach(chatId -> {
             LocalDate date = LocalDate.of(2023, 6, 1);
             LocalDate currentDate = LocalDate.now();
