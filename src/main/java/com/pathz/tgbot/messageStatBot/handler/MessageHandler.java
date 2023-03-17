@@ -48,11 +48,10 @@ public class MessageHandler implements Handler<Message> {
         Long chatId = message.getChatId();
         Integer messageId = message.getMessageId();
         Long userId = message.getFrom().getId();
+        String userName = message.getFrom().getUserName();
+        String userText = message.getText();
+        logService.save(chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(), userText);
         if (message.hasText()) {
-            String userText = message.getText();
-            String userName = message.getFrom().getUserName();
-            logService.save(chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(), userText);
-
             if (!userText.contains("/")) {
                 statsService.processStatistic(chatId.toString(), userId.toString(), userName, from);
             }

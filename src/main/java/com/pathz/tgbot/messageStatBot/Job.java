@@ -2,6 +2,7 @@ package com.pathz.tgbot.messageStatBot;
 
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.service.ChallengeService;
+import com.pathz.tgbot.messageStatBot.service.HoroService;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
 import com.pathz.tgbot.messageStatBot.service.StinkyService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,12 +19,14 @@ public class Job {
     private final StinkyService stinkyService;
     private final ChallengeService challengeService;
     private final MessageExecutor messageExecutor;
+    private final HoroService horoService;
 
-    public Job(StatsService statsService, StinkyService stinkyService, ChallengeService challengeService, MessageExecutor messageExecutor) {
+    public Job(StatsService statsService, StinkyService stinkyService, ChallengeService challengeService, MessageExecutor messageExecutor, HoroService horoService) {
         this.statsService = statsService;
         this.stinkyService = stinkyService;
         this.challengeService = challengeService;
         this.messageExecutor = messageExecutor;
+        this.horoService = horoService;
     }
 
     @Scheduled(cron = "55 59 12,23 * * ?")
@@ -40,6 +43,11 @@ public class Job {
         chatIds.forEach(chatId -> {
             stinkyService.sendStinky(Long.valueOf(chatId));
         });
+    }
+
+    @Scheduled(cron = "1 0 0 * * ?")
+    public void loadHoro() {
+        horoService.grubDataFromResource();
     }
 
     @Scheduled(cron = "0 48 10,22 * * ?")
