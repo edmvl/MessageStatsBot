@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -95,8 +96,13 @@ public class HoroService {
     }
 
     public void sendHoro(Long chatId, HoroscopeEnum horoscopeEnum) {
-        Optional<Horo> horoByDateAndSign = getHoroByDateAndSign(LocalDate.now(), horoscopeEnum.getSysname());
-        horoByDateAndSign.ifPresent(horo -> sendMessage(chatId, horo.getText()));
+        LocalDate now = LocalDate.now();
+        Optional<Horo> horoByDateAndSign = getHoroByDateAndSign(now, horoscopeEnum.getSysname());
+        horoByDateAndSign.ifPresent(horo -> sendMessage(chatId, getFormattedHoroTextToDate(horo.getText(), now, horoscopeEnum)));
+    }
+
+    private String getFormattedHoroTextToDate(String text, LocalDate date, HoroscopeEnum horoscopeEnum) {
+        return horoscopeEnum.getName() + " на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n" + text;
     }
 
     private void sendMessage(Long chatId, String text) {
