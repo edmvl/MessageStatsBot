@@ -1,11 +1,9 @@
 package com.pathz.tgbot.messageStatBot.handler;
 
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
-import com.pathz.tgbot.messageStatBot.service.ChallengeService;
-import com.pathz.tgbot.messageStatBot.service.LogService;
-import com.pathz.tgbot.messageStatBot.service.StatsService;
-import com.pathz.tgbot.messageStatBot.service.StinkyService;
+import com.pathz.tgbot.messageStatBot.service.*;
 import com.pathz.tgbot.messageStatBot.util.BotCommands;
+import com.pathz.tgbot.messageStatBot.util.HoroscopeEnum;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -14,7 +12,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 @Component
@@ -25,6 +25,7 @@ public class MessageHandler implements Handler<Message> {
     private final StinkyService stinkyService;
     private final LogService logService;
     private final ChallengeService challengeService;
+    private final HoroService horoService;
 
     private final Logger logger = Logger.getLogger("MessageHandler");
 
@@ -32,13 +33,14 @@ public class MessageHandler implements Handler<Message> {
     private String botUsername;
     @Lazy
     public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService,
-                          LogService logService, ChallengeService challengeService
-    ) {
+                          LogService logService, ChallengeService challengeService,
+                          HoroService horoService) {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
         this.stinkyService = stinkyService;
         this.logService = logService;
         this.challengeService = challengeService;
+        this.horoService = horoService;
     }
 
     @Override
@@ -96,6 +98,10 @@ public class MessageHandler implements Handler<Message> {
                 if (s.length >= 1){
                     challengeService.reg(s[1], userId, userName, messageId, chatId);
                 }
+            }
+            HoroscopeEnum horoscopeEnum = HoroscopeEnum.byName(userText);
+            if (Objects.nonNull(horoscopeEnum)) {
+                horoService.sendHoro(chatId, horoscopeEnum);
             }
         }
         statsService.processNewChatMembers(message);

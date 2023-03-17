@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.entity.Horo;
+import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.HoroRepository;
 import com.pathz.tgbot.messageStatBot.util.HoroscopeEnum;
 import lombok.SneakyThrows;
@@ -8,6 +9,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -20,8 +22,11 @@ public class HoroService {
 
     private final HoroRepository horoRepository;
 
-    public HoroService(HoroRepository horoRepository) {
+    private final MessageExecutor messageExecutor;
+
+    public HoroService(HoroRepository horoRepository, MessageExecutor messageExecutor) {
         this.horoRepository = horoRepository;
+        this.messageExecutor = messageExecutor;
     }
 
     public void grubDataFromResource() {
@@ -88,4 +93,17 @@ public class HoroService {
             return null;
         }
     }
+
+    public void sendHoro(Long chatId, HoroscopeEnum horoscopeEnum) {
+        Optional<Horo> horoByDateAndSign = getHoroByDateAndSign(LocalDate.now(), horoscopeEnum.getSysname());
+        horoByDateAndSign.ifPresent(horo -> sendMessage(chatId, horo.getText()));
+    }
+
+    private void sendMessage(Long chatId, String text) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+        messageExecutor.sendMessage(sendMessage);
+    }
+
 }

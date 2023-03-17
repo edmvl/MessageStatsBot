@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot.util;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public enum HoroscopeEnum {
     ARIES("Овен", "aries"),
@@ -37,5 +38,11 @@ public enum HoroscopeEnum {
             .filter(horoscopeEnum -> horoscopeEnum.sysname.equals(sysname))
             .findFirst()
             .orElseThrow();
+    }
+    public static HoroscopeEnum byName(String name) {
+        return Arrays.stream(values())
+            .filter(horoscopeEnum -> horoscopeEnum.name.toLowerCase(Locale.ROOT).equals(name))
+            .findFirst()
+            .orElse(null);
     }
 }
