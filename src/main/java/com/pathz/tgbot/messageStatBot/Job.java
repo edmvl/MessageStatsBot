@@ -5,6 +5,7 @@ import com.pathz.tgbot.messageStatBot.service.ChallengeService;
 import com.pathz.tgbot.messageStatBot.service.HoroService;
 import com.pathz.tgbot.messageStatBot.service.StatsService;
 import com.pathz.tgbot.messageStatBot.service.StinkyService;
+import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -57,7 +58,8 @@ public class Job {
             LocalDate date = LocalDate.of(2023, 6, 1);
             LocalDate currentDate = LocalDate.now();
             SendMessage sendMessage = new SendMessage();
-            String text = "До лета осталось " + currentDate.datesUntil(date).count() + " дней";
+            long count = currentDate.datesUntil(date).count();
+            String text = "До лета осталось " + count + " " + MessageFormatter.getDayAddition((int) count);
             sendMessage.setChatId(chatId);
             sendMessage.setText(text);
             messageExecutor.sendMessage(sendMessage);

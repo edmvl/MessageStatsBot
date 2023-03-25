@@ -41,7 +41,7 @@ public enum HoroscopeEnum {
     }
     public static HoroscopeEnum byName(String name) {
         return Arrays.stream(values())
-            .filter(horoscopeEnum -> horoscopeEnum.name.toLowerCase(Locale.ROOT).equals(name))
+            .filter(horoscopeEnum -> horoscopeEnum.name.toLowerCase(Locale.ROOT).equals(name.toLowerCase()))
             .findFirst()
             .orElse(null);
     }

@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class HoroService {
@@ -30,7 +30,7 @@ public class HoroService {
         this.messageExecutor = messageExecutor;
     }
 
-    public void grubDataFromResource() {
+    synchronized public void grubDataFromResource() {
         LocalDate now = LocalDate.now();
         Arrays.stream(HoroscopeEnum.values())
                 .map(sign -> parseHoro(sign.getSysname()))
@@ -51,9 +51,9 @@ public class HoroService {
                 .append("---------------------")
                 .append("\n");
         for (HoroscopeEnum value : values) {
-            Optional<Horo> horoByDateAndSign = getHoroByDateAndSign(date, value.getSysname());
-            if (horoByDateAndSign.isPresent()) {
-                Horo horo = horoByDateAndSign.get();
+            List<Horo> horoByDateAndSign = getHoroByDateAndSign(date, value.getSysname());
+            if (horoByDateAndSign.size() > 1) {
+                Horo horo = horoByDateAndSign.stream().findFirst().get();
                 stringBuilder
                         .append(HoroscopeEnum.bySysname(horo.getSign()).getName())
                         .append("\n")
@@ -66,7 +66,7 @@ public class HoroService {
         return stringBuilder.toString();
     }
 
-    private Optional<Horo> getHoroByDateAndSign(LocalDate date, String sysname) {
+    private List<Horo> getHoroByDateAndSign(LocalDate date, String sysname) {
         return horoRepository.getAllByDateAndSign(date, sysname);
     }
 
@@ -97,8 +97,26 @@ public class HoroService {
 
     public void sendHoro(Long chatId, HoroscopeEnum horoscopeEnum) {
         LocalDate now = LocalDate.now();
-        Optional<Horo> horoByDateAndSign = getHoroByDateAndSign(now, horoscopeEnum.getSysname());
-        horoByDateAndSign.ifPresent(horo -> sendMessage(chatId, getFormattedHoroTextToDate(horo.getText(), now, horoscopeEnum)));
+        String sysname = horoscopeEnum.getSysname();
+        Horo horo = getOrReloadHoro(now, sysname);
+        sendMessage(chatId, getFormattedHoroTextToDate(horo.getText(), now, horoscopeEnum));
+    }
+
+    @SneakyThrows
+    private Horo getOrReloadHoro(LocalDate now, String sysname) {
+        List<Horo> horoByDateAndSign = getHoroByDateAndSign(now, sysname);
+        if (horoByDateAndSign.size() > 0) {
+            return horoByDateAndSign.stream().findFirst().get();
+        }
+        for (int i = 0; i < 10; i++) {
+            Thread.sleep(10000);
+            grubDataFromResource();
+            horoByDateAndSign = getHoroByDateAndSign(now, sysname);
+            if (horoByDateAndSign.size() > 0) {
+                return horoByDateAndSign.stream().findFirst().get();
+            }
+        }
+        return null;
     }
 
     private String getFormattedHoroTextToDate(String text, LocalDate date, HoroscopeEnum horoscopeEnum) {

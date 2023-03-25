@@ -5,9 +5,10 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface HoroRepository extends CrudRepository<Horo, Long> {
-    Optional<Horo> getAllByDateAndSign(LocalDate localDate, String sign);
+    List<Horo> getAllByDateAndSign(LocalDate localDate, String sign);
 }
