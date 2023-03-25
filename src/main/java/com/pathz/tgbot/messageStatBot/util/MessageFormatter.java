@@ -1,6 +1,12 @@
 package com.pathz.tgbot.messageStatBot.util;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -26,4 +32,28 @@ public class MessageFormatter {
         }
 
     }
+
+    public static final String getUrlByDate(LocalDate now) {
+        StringBuilder builder = new StringBuilder("https://kakoysegodnyaprazdnik.ru/baza/");
+        List<String> month = List.of("yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentyabr", "oktyabr", "noyabr", "dekabr");
+        builder.append(month.get(now.getMonthValue() - 1));
+        builder.append("/");
+        builder.append(now.getDayOfMonth());
+        return builder.toString();
+    }
+
+    public static Document getHTMLPage(String url) {
+        try {
+            return Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .followRedirects(true)
+                    .execute()
+                    .parse();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+
 }
