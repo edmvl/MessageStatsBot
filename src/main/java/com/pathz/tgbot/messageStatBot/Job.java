@@ -72,7 +72,7 @@ public class Job {
         challengeService.finishAll();
     }
 
-    @Scheduled(cron = "5 0 8 * * ?")
+    @Scheduled(cron = "0 3 0 * * ?")
     public void sendHolidaysAllChat() {
         holidayService.sendHolidaysAllChat();
     }
