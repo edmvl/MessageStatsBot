@@ -6,6 +6,7 @@ import com.pathz.tgbot.messageStatBot.dto.StatsViewDto;
 import com.pathz.tgbot.messageStatBot.entity.Settings;
 import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
+import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
@@ -31,12 +32,14 @@ import static com.pathz.tgbot.messageStatBot.util.BotCommands.values;
 public class StatsService {
 
     private final StatsRepo statsRepo;
+    private final LogRepo logRepo;
     private final SettingsRepo settingsRepo;
     private final StatsDtoMapper statsDtoMapper;
     private final MessageExecutor messageExecutor;
 
-    public StatsService(StatsRepo statsRepo, SettingsRepo settingsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor) {
+    public StatsService(StatsRepo statsRepo, LogRepo logRepo, SettingsRepo settingsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor) {
         this.statsRepo = statsRepo;
+        this.logRepo = logRepo;
         this.settingsRepo = settingsRepo;
         this.statsDtoMapper = statsDtoMapper;
         this.messageExecutor = messageExecutor;
