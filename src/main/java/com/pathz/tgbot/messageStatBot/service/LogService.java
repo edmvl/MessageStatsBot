@@ -16,6 +16,9 @@ public class LogService {
     }
 
     public void save(String chatId, String chatName, String userId, String userName, LocalDateTime dateTime, String text) {
+        System.out.println(chatName + " " + userName + " " + dateTime.getHour() + ":" +
+                dateTime.getMinute()+ ":" + dateTime.getSecond() + " " + text
+        );
         Log log = new Log();
         log.setChatId(chatId);
         log.setChatName(chatName);

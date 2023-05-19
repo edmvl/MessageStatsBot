@@ -29,7 +29,8 @@ public class StinkyService {
     public Stinky findByMessage(String chatId, LocalDate date) {
         return stinkyRepo.findByChatIdAndDate(chatId, date);
     }
-    public void save(String chatId, String userId, LocalDate date){
+
+    public void save(String chatId, String userId, LocalDate date) {
         Stinky stinky = new Stinky();
         stinky.setChatId(chatId);
         stinky.setUserId(userId);
@@ -43,11 +44,12 @@ public class StinkyService {
         return distinctUserIdByChatId.get(i);
     }
 
-    public void sendStinky(Long chatId, Integer messageId){
+    public void sendStinky(Long chatId, Integer messageId) {
         sendStinky(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
     }
-    public void sendStinky(Long chatId){
+
+    public void sendStinky(Long chatId) {
         Stinky existedStinky = findByMessage(chatId.toString(), LocalDate.now());
         SendMessage sendMessage = new SendMessage();
         String text = "";
@@ -56,9 +58,11 @@ public class StinkyService {
         } else {
             String stinkyUserId = getStinky(chatId.toString());
             User user = null;
-            while (Objects.isNull(user)){
+            int counter = 0;
+            while (Objects.isNull(user) || counter < 10) {
                 stinkyUserId = getStinky(chatId.toString());
                 user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
+                counter++;
             }
             String firstName = user.getFirstName();
             String lastName = user.getLastName();
