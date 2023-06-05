@@ -35,7 +35,11 @@ public class Job {
     public void sendStats() {
         List<String> chatIds = statsService.findAllChats();
         chatIds.forEach(chatId -> {
-            statsService.sendChatty(Long.valueOf(chatId));
+            try {
+                statsService.sendChatty(Long.valueOf(chatId));
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         });
     }
 
@@ -43,37 +47,57 @@ public class Job {
     public void sendStinky() {
         List<String> chatIds = statsService.findAllChats();
         chatIds.forEach(chatId -> {
-            stinkyService.sendStinky(Long.valueOf(chatId));
+            try {
+                stinkyService.sendStinky(Long.valueOf(chatId));
+            }catch (Exception e) {
+                System.out.println(e);
+            }
         });
     }
 
     @Scheduled(cron = "1 0 0 * * ?")
     public void loadHoro() {
-        horoService.grubDataFromResource();
+        try {
+            horoService.grubDataFromResource();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     @Scheduled(cron = "0 48 10,22 * * ?")
     public void sendSpringReminder() {
         List<String> chatIds = statsService.findAllChats();
         chatIds.forEach(chatId -> {
-            LocalDate date = LocalDate.of(2023, 6, 1);
-            LocalDate currentDate = LocalDate.now();
-            SendMessage sendMessage = new SendMessage();
-            long count = currentDate.datesUntil(date).count();
-            String text = "До лета осталось " + count + " " + MessageFormatter.getDayAddition((int) count);
-            sendMessage.setChatId(chatId);
-            sendMessage.setText(text);
-            messageExecutor.sendMessage(sendMessage);
+            try {
+                LocalDate date = LocalDate.of(2023, 6, 1);
+                LocalDate currentDate = LocalDate.now();
+                SendMessage sendMessage = new SendMessage();
+                long count = currentDate.datesUntil(date).count();
+                String text = "До лета осталось " + count + " " + MessageFormatter.getDayAddition((int) count);
+                sendMessage.setChatId(chatId);
+                sendMessage.setText(text);
+                messageExecutor.sendMessage(sendMessage);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         });
     }
 
     @Scheduled(cron = "0 * 8-23 * * ?")
     public void sendChallenges() {
-        challengeService.finishAll();
+        try {
+            challengeService.finishAll();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     @Scheduled(cron = "0 3 0 * * ?")
     public void sendHolidaysAllChat() {
-        holidayService.sendHolidaysAllChat();
+        try {
+            holidayService.sendHolidaysAllChat();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 }
