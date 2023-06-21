@@ -44,6 +44,12 @@ public class StinkyService {
         return distinctUserIdByChatId.get(i);
     }
 
+    public String getStinky(String chatId, String userId) {
+        List<String> distinctUserIdByChatId = statsRepo.findDistinctUserIdByChatId(chatId);
+        int i = (int) (Math.random() * distinctUserIdByChatId.size());
+        return distinctUserIdByChatId.get(i);
+    }
+
     public void sendStinky(Long chatId, Integer messageId) {
         sendStinky(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
@@ -53,30 +59,36 @@ public class StinkyService {
         Stinky existedStinky = findByMessage(chatId.toString(), LocalDate.now());
         SendMessage sendMessage = new SendMessage();
         String text = "";
+        User user = null;
+        String stinkyUserId = null;
         if (Objects.nonNull(existedStinky)) {
-            text = "Паянхи шăршлă кута тупнă";
+            text = "Паянхи шăршлă кута тупнă:\n";
+            stinkyUserId = existedStinky.getUserId();
+            user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
         } else {
-            String stinkyUserId = getStinky(chatId.toString());
-            User user = null;
+            stinkyUserId = getStinky(chatId.toString());
+            text = "Кунăн кучĕ питĕ шăршлă:\n";
             int counter = 0;
             while (Objects.isNull(user) || counter < 10) {
                 stinkyUserId = getStinky(chatId.toString());
                 user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
                 counter++;
             }
-            String firstName = user.getFirstName();
-            String lastName = user.getLastName();
-            text = "Кунăн кучĕ питĕ шăршлă:\n";
-            MessageEntity messageEntity = new MessageEntity();
-            messageEntity.setUser(user);
-            messageEntity.setOffset(text.length());
-            String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
-            text += userIdentityText;
-            messageEntity.setLength(userIdentityText.length());
-            messageEntity.setType("text_mention");
-            sendMessage.setEntities(List.of(messageEntity));
             save(chatId.toString(), stinkyUserId, LocalDate.now());
         }
+        if (Objects.isNull(user)) {
+            return;
+        }
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setUser(user);
+        messageEntity.setOffset(text.length());
+        String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "\n";
+        text += userIdentityText;
+        messageEntity.setLength(userIdentityText.length());
+        messageEntity.setType("text_mention");
+        sendMessage.setEntities(List.of(messageEntity));
         sendMessage.setText(text);
         sendMessage.setChatId(chatId);
         messageExecutor.sendMessage(sendMessage);
