@@ -16,7 +16,6 @@ public class Job {
     private final StatsService statsService;
     private final StinkyService stinkyService;
     private final ChallengeService challengeService;
-    private final MessageExecutor messageExecutor;
     private final HoroService horoService;
     private final HolidayService holidayService;
 
@@ -26,7 +25,6 @@ public class Job {
         this.statsService = statsService;
         this.stinkyService = stinkyService;
         this.challengeService = challengeService;
-        this.messageExecutor = messageExecutor;
         this.horoService = horoService;
         this.holidayService = holidayService;
     }
