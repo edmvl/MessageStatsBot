@@ -34,25 +34,25 @@ public class Job {
     @Scheduled(cron = "55 59 12,23 * * ?")
     public void sendStats() {
         List<String> chatIds = statsService.findAllChats();
-        chatIds.forEach(chatId -> {
+        for (String chatId : chatIds) {
             try {
                 statsService.sendChatty(Long.valueOf(chatId));
             } catch (Exception e) {
                 System.out.println(e);
             }
-        });
+        }
     }
 
     @Scheduled(cron = "0 0 10 * * ?")
     public void sendStinky() {
         List<String> chatIds = statsService.findAllChats();
-        chatIds.forEach(chatId -> {
+        for (String chatId : chatIds) {
             try {
                 stinkyService.sendStinky(Long.valueOf(chatId));
-            }catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println(e);
             }
-        });
+        }
     }
 
     @Scheduled(cron = "1 0 0 * * ?")
@@ -62,25 +62,6 @@ public class Job {
         } catch (Exception e) {
             System.out.println(e);
         }
-    }
-
-    @Scheduled(cron = "0 48 10,22 * * ?")
-    public void sendSpringReminder() {
-        List<String> chatIds = statsService.findAllChats();
-        chatIds.forEach(chatId -> {
-            try {
-                LocalDate date = LocalDate.of(2023, 6, 1);
-                LocalDate currentDate = LocalDate.now();
-                SendMessage sendMessage = new SendMessage();
-                long count = currentDate.datesUntil(date).count();
-                String text = "До лета осталось " + count + " " + MessageFormatter.getDayAddition((int) count);
-                sendMessage.setChatId(chatId);
-                sendMessage.setText(text);
-                messageExecutor.sendMessage(sendMessage);
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-        });
     }
 
     @Scheduled(cron = "0 * 8-23 * * ?")
