@@ -30,7 +30,11 @@ public class HolidayService {
         String holidays = getHolidays();
         List<String> chatIds = findAllChats();
         chatIds.forEach(chatId -> {
-            sendMessage(chatId, holidays);
+            try {
+                sendMessage(chatId, holidays);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         });
     }
 
