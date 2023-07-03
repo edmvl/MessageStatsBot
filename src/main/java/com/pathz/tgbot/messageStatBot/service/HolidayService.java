@@ -4,11 +4,13 @@ import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class HolidayService {
@@ -33,17 +35,33 @@ public class HolidayService {
             try {
                 sendMessage(chatId, holidays);
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
         });
     }
 
+    public void sendHolidays(Long chatId) {
+        String holidays = getHolidays();
+        try {
+            sendMessage(chatId.toString(), holidays);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void sendHolidays(Long chatId, Integer messageId) {
+        sendHolidays(chatId);
+        messageExecutor.deleteMessage(chatId, messageId);
+    }
 
     public String getHolidays() {
         LocalDate now = LocalDate.now();
         String url = MessageFormatter.getUrlByDate(now);
         Document document = MessageFormatter.getHTMLPage(url);
-        List<String> strings = document.body().select("span[itemprop='text']").eachText();
+        if (Objects.isNull(document)){
+            return "";
+        }
+        Element body = document.body();
+        List<String> strings = body.select("span[itemprop='text']").eachText();
         return "Праздники сегодня:\n" + String.join("\n", strings);
     }
 

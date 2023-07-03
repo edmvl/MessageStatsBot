@@ -9,6 +9,7 @@ public enum BotCommands {
     GET_STATS_ALL("/stat", "вся статистика"),
     GET_WEEK_STATS("/week", "статистика за неделю"),
     SKIP_STATS("/skipstats", "не учитывать в статистике", true),
+    HOLIDAYS("/holidays", "Праздники сегодня"),
     GET_CHATTY_DAYS("/days", "статистика по дням"),
     CHALLANGE_START("/challenge", "начать розыгрыш", true),
     CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш");
@@ -34,6 +35,7 @@ public enum BotCommands {
         this.explainer = explainer;
         this.for_admin = Boolean.FALSE;
     }
+
     BotCommands(String command, String explainer, Boolean for_admin) {
         this.command = command;
         this.explainer = explainer;

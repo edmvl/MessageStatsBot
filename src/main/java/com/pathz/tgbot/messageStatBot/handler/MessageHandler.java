@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -24,6 +23,7 @@ public class MessageHandler implements Handler<Message> {
     private final StatsService statsService;
     private final StinkyService stinkyService;
     private final LogService logService;
+    private final HolidayService holidayService;
     private final ChallengeService challengeService;
     private final HoroService horoService;
 
@@ -33,12 +33,13 @@ public class MessageHandler implements Handler<Message> {
     private String botUsername;
     @Lazy
     public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService,
-                          LogService logService, ChallengeService challengeService,
+                          LogService logService, HolidayService holidayService, ChallengeService challengeService,
                           HoroService horoService) {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
         this.stinkyService = stinkyService;
         this.logService = logService;
+        this.holidayService = holidayService;
         this.challengeService = challengeService;
         this.horoService = horoService;
     }
@@ -83,6 +84,9 @@ public class MessageHandler implements Handler<Message> {
             }
             if (userText.startsWith(BotCommands.SKIP_STATS.getCommand())) {
                 statsService.skipStats(chatId, userId, messageId);
+            }
+            if (userText.startsWith(BotCommands.HOLIDAYS.getCommand())) {
+                holidayService.sendHolidays(chatId, messageId);
             }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
                 String[] s = userText.split(" ");
