@@ -1,13 +1,9 @@
 package com.pathz.tgbot.messageStatBot;
 
-import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.service.*;
-import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -20,7 +16,7 @@ public class Job {
     private final HolidayService holidayService;
 
     public Job(StatsService statsService, StinkyService stinkyService, ChallengeService challengeService,
-               MessageExecutor messageExecutor, HoroService horoService, HolidayService holidayService
+               HoroService horoService, HolidayService holidayService
     ) {
         this.statsService = statsService;
         this.stinkyService = stinkyService;
@@ -36,7 +32,7 @@ public class Job {
             try {
                 statsService.sendChatty(Long.valueOf(chatId));
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
         }
     }
@@ -48,7 +44,7 @@ public class Job {
             try {
                 stinkyService.sendStinky(Long.valueOf(chatId));
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
         }
     }
@@ -58,7 +54,7 @@ public class Job {
         try {
             horoService.grubDataFromResource();
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -67,7 +63,7 @@ public class Job {
         try {
             challengeService.finishAll();
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -76,7 +72,7 @@ public class Job {
         try {
             holidayService.sendHolidaysAllChat();
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }

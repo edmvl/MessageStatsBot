@@ -88,7 +88,7 @@ public class ChallengeService {
         nearest.setFinished(true);
         challengeRepo.save(nearest);
         List<ChallengeReg> regs = challengeRegRepo.findByChallengeId(nearest.getId());
-        if (regs.isEmpty()) {
+        if (Objects.isNull(regs) || regs.isEmpty()) {
             return;
         }
         int random = (int) (Math.random() * regs.size()) - 1;
