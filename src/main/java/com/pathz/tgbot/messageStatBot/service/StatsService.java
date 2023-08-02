@@ -136,8 +136,9 @@ public class StatsService {
     public void sendStats(Long chatId, LocalDate date) {
         List<Stats> top = getTopChattyUserId(chatId, date);
         StringBuilder text = new StringBuilder("Статистика на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n");
+        int sum = top.stream().map(Stats::getCount).mapToInt(value -> value).sum();
         if (date.equals(LocalDate.now())) {
-            text = new StringBuilder("Паянхи статистика:\n");
+            text = new StringBuilder("Паянхи статистика:\nВсего:" + sum + "\n");
         }
         List<MessageEntity> messageEntities = getMessageEntities(top, chatId, text);
         sendMessage(chatId, messageEntities, text.toString());

@@ -58,9 +58,9 @@ public class StinkyService {
     public void sendStinky(Long chatId) {
         Stinky existedStinky = findByMessage(chatId.toString(), LocalDate.now());
         SendMessage sendMessage = new SendMessage();
-        String text = "";
+        String text;
         User user = null;
-        String stinkyUserId = null;
+        String stinkyUserId;
         if (Objects.nonNull(existedStinky)) {
             text = "Паянхи шăршлă кута тупнă:\n";
             stinkyUserId = existedStinky.getUserId();
@@ -70,6 +70,7 @@ public class StinkyService {
             text = "Кунăн кучĕ питĕ шăршлă:\n";
             int counter = 0;
             while (Objects.isNull(user) || counter < 10) {
+                System.out.println("try to get stinky " + (counter + 1));
                 stinkyUserId = getStinky(chatId.toString());
                 user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
                 counter++;
