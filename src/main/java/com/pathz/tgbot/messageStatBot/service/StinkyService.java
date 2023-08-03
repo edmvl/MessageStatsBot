@@ -69,7 +69,7 @@ public class StinkyService {
             stinkyUserId = getStinky(chatId.toString());
             text = "Кунăн кучĕ питĕ шăршлă:\n";
             int counter = 0;
-            while (Objects.isNull(user) || counter < 10) {
+            while (Objects.isNull(user) && counter < 10) {
                 System.out.println("try to get stinky " + (counter + 1));
                 stinkyUserId = getStinky(chatId.toString());
                 user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
