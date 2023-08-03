@@ -26,15 +26,17 @@ public class MessageHandler implements Handler<Message> {
     private final HolidayService holidayService;
     private final ChallengeService challengeService;
     private final HoroService horoService;
+    private final WordsFilterService wordsFilterService;
 
     private final Logger logger = Logger.getLogger("MessageHandler");
 
     @Value("${telegram.bot.username}")
     private String botUsername;
+
     @Lazy
     public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService,
                           LogService logService, HolidayService holidayService, ChallengeService challengeService,
-                          HoroService horoService) {
+                          HoroService horoService, WordsFilterService wordsFilterService) {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
         this.stinkyService = stinkyService;
@@ -42,6 +44,7 @@ public class MessageHandler implements Handler<Message> {
         this.holidayService = holidayService;
         this.challengeService = challengeService;
         this.horoService = horoService;
+        this.wordsFilterService = wordsFilterService;
     }
 
     @Override
@@ -53,6 +56,7 @@ public class MessageHandler implements Handler<Message> {
         Long userId = message.getFrom().getId();
         String userName = message.getFrom().getUserName();
         String userText = message.getText();
+        wordsFilterService.deleteByFilter(chatId, messageId, userText);
         logService.save(chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(), userText);
         if (message.hasText()) {
             if (!userText.contains("/")) {
@@ -90,7 +94,7 @@ public class MessageHandler implements Handler<Message> {
             }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
                 String[] s = userText.split(" ");
-                if (s.length >= 3){
+                if (s.length >= 3) {
                     challengeService.start(
                             messageId, chatId.toString(), message.getChat().getTitle(), LocalDateTime.now(),
                             LocalDateTime.now().plusDays(Integer.parseInt(s[1])), s[2]
@@ -99,7 +103,7 @@ public class MessageHandler implements Handler<Message> {
             }
             if (userText.startsWith(BotCommands.CHALLANGE_REGISTRATION.getCommand())) {
                 String[] s = userText.split(BotCommands.CHALLANGE_REGISTRATION.getCommand());
-                if (s.length >= 1){
+                if (s.length >= 1) {
                     challengeService.reg(s[1], userId, userName, messageId, chatId);
                 }
             }
