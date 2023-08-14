@@ -9,6 +9,7 @@ public enum BotCommands {
     GET_STATS_ALL("/stat", "вся статистика"),
     GET_WEEK_STATS("/week", "статистика за неделю"),
     SKIP_STATS("/skipstats", "не учитывать в статистике", true),
+    ADD_WORD("/addword", "добавить слово в список удаляемых", true),
     HOLIDAYS("/holidays", "Праздники сегодня"),
     GET_CHATTY_DAYS("/days", "статистика по дням"),
     CHALLANGE_START("/challenge", "начать розыгрыш", true),

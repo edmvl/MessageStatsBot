@@ -26,4 +26,10 @@ public class WordsFilterService {
             messageExecutor.deleteMessage(chatId, messageId);
         }
     }
+
+    public void addWord(String word) {
+        WordsFilter wordsFilter = new WordsFilter();
+        wordsFilter.setWord(word);
+        wordsFilterRepo.save(wordsFilter);
+    }
 }

@@ -93,12 +93,18 @@ public class MessageHandler implements Handler<Message> {
                 holidayService.sendHolidays(chatId, messageId);
             }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
-                String[] s = userText.split(" ");
+                String[] s = userText.split(";");
                 if (s.length >= 3) {
                     challengeService.start(
                             messageId, chatId.toString(), message.getChat().getTitle(), LocalDateTime.now(),
                             LocalDateTime.now().plusDays(Integer.parseInt(s[1])), s[2]
                     );
+                }
+            }
+            if (userText.startsWith(BotCommands.ADD_WORD.getCommand())) {
+                String[] s = userText.split(" ");
+                if (s.length >= 2) {
+                    wordsFilterService.addWord(s[1]);
                 }
             }
             if (userText.startsWith(BotCommands.CHALLANGE_REGISTRATION.getCommand())) {
