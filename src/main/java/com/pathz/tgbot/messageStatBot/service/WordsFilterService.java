@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class WordsFilterService {
@@ -20,6 +21,9 @@ public class WordsFilterService {
     }
 
     public void deleteByFilter(Long chatId, Integer messageId, String text) {
+        if (Objects.isNull(text)) {
+            return;
+        }
         List<String> words = Arrays.stream(text.split(" ")).toList();
         List<String> wordsToFilter = wordsFilterRepo.findAll().stream().map(WordsFilter::getWord).toList();
         if (wordsToFilter.stream().anyMatch(s -> words.stream().anyMatch(s.toLowerCase()::equals))) {

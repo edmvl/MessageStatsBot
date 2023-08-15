@@ -92,6 +92,9 @@ public class MessageHandler implements Handler<Message> {
             if (userText.startsWith(BotCommands.HOLIDAYS.getCommand())) {
                 holidayService.sendHolidays(chatId, messageId);
             }
+            if (userText.startsWith(BotCommands.CHANGED_USERS.getCommand())) {
+                logService.sendChanged(chatId);
+            }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
                 String[] s = userText.split(";");
                 if (s.length >= 3) {

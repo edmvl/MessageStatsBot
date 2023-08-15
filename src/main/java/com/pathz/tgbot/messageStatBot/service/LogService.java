@@ -5,11 +5,13 @@ import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Service
 @lombok.extern.java.Log
-public class LogService {
+public class LogService extends MessageSender{
 
     private final LogRepo logRepo;
 
@@ -29,4 +31,9 @@ public class LogService {
         logRepo.save(log);
     }
 
+    public void sendChanged(Long chatId){
+        List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId));
+        String collect = userChangedHistoryByChatId.stream().map(s -> s + "\n").collect(Collectors.joining("===================\n"));
+        sendMessage(chatId, collect);
+    }
 }
