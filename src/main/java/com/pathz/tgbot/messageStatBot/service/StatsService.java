@@ -8,6 +8,7 @@ import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
+import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -35,11 +36,14 @@ public class StatsService {
     private final StatsDtoMapper statsDtoMapper;
     private final MessageExecutor messageExecutor;
 
-    public StatsService(StatsRepo statsRepo, SettingsRepo settingsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor) {
+    private final SettingsService settingsService;
+
+    public StatsService(StatsRepo statsRepo, SettingsRepo settingsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor, SettingsService settingsService) {
         this.statsRepo = statsRepo;
         this.settingsRepo = settingsRepo;
         this.statsDtoMapper = statsDtoMapper;
         this.messageExecutor = messageExecutor;
+        this.settingsService = settingsService;
     }
 
     public boolean isExistByMessage(String chatId, String userId, LocalDate date) {
@@ -129,8 +133,22 @@ public class StatsService {
         }
     }
 
-    public List<String> findAllChats() {
+    private List<String> findAllChats() {
         return statsRepo.findDistinctChatId();
+    }
+
+    public void sendStatAllChat() {
+        for (String chatId : findAllChats()) {
+            if (settingsService.isEnabled(chatId, ChatSettingConstants.ENABLE_STATS)) {
+                return;
+            }
+            try {
+                sendChatty(Long.valueOf(chatId));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void sendStats(Long chatId, LocalDate date) {

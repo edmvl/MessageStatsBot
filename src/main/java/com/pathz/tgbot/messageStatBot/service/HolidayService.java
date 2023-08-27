@@ -2,6 +2,7 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
+import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,10 +19,12 @@ public class HolidayService {
     private final MessageExecutor messageExecutor;
 
     private final StatsRepo statsRepo;
+    private final SettingsService settingsService;
 
-    public HolidayService(MessageExecutor messageExecutor, StatsRepo statsRepo) {
+    public HolidayService(MessageExecutor messageExecutor, StatsRepo statsRepo, SettingsService settingsService) {
         this.messageExecutor = messageExecutor;
         this.statsRepo = statsRepo;
+        this.settingsService = settingsService;
     }
 
     public List<String> findAllChats() {
@@ -33,6 +36,9 @@ public class HolidayService {
         List<String> chatIds = findAllChats();
         chatIds.forEach(chatId -> {
             try {
+                if (settingsService.isEnabled(chatId, ChatSettingConstants.ENABLE_HOLIDAYS)) {
+                    return;
+                }
                 sendMessage(chatId, holidays);
             } catch (Exception e) {
                 e.printStackTrace();

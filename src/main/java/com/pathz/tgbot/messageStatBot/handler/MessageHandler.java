@@ -107,7 +107,7 @@ public class MessageHandler implements Handler<Message> {
             if (userText.startsWith(BotCommands.ADD_WORD.getCommand())) {
                 String[] s = userText.split(" ");
                 if (s.length >= 2) {
-                    wordsFilterService.addWord(s[1]);
+                    wordsFilterService.addWord(s[1], userId, chatId);
                 }
             }
             if (userText.startsWith(BotCommands.CHALLANGE_REGISTRATION.getCommand())) {

@@ -4,6 +4,7 @@ import com.pathz.tgbot.messageStatBot.entity.Stinky;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StinkyRepo;
+import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
@@ -18,11 +19,15 @@ public class StinkyService {
 
     private final StinkyRepo stinkyRepo;
     private final StatsRepo statsRepo;
+
+    private final SettingsService settingsService;
+
     private final MessageExecutor messageExecutor;
 
-    public StinkyService(StinkyRepo stinkyRepo, StatsRepo statsRepo, MessageExecutor messageExecutor) {
+    public StinkyService(StinkyRepo stinkyRepo, StatsRepo statsRepo, SettingsService settingsService, MessageExecutor messageExecutor) {
         this.stinkyRepo = stinkyRepo;
         this.statsRepo = statsRepo;
+        this.settingsService = settingsService;
         this.messageExecutor = messageExecutor;
     }
 
@@ -53,6 +58,19 @@ public class StinkyService {
     public void sendStinky(Long chatId, Integer messageId) {
         sendStinky(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
+    }
+    public void sendStinkyAllChat() {
+        List<String> chatIds = statsRepo.findDistinctChatId();
+        for (String chatId : chatIds) {
+            if (settingsService.isEnabled(chatId, ChatSettingConstants.ENABLE_STINKY)) {
+                return;
+            }
+            try {
+                sendStinky(Long.valueOf(chatId));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void sendStinky(Long chatId) {
