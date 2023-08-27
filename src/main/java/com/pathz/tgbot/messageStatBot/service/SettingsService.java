@@ -5,6 +5,8 @@ import com.pathz.tgbot.messageStatBot.repo.ChatSettingsRepo;
 import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class SettingsService {
 
@@ -16,8 +18,10 @@ public class SettingsService {
 
     public boolean isEnabled(String chatId, ChatSettingConstants name) {
         ChatSettings setting = chatSettingsRepo.findFirstByChatIdAndSettingName(chatId, name.getDbValue());
-        String settingValue = setting.getSettingValue();
-        return "true".equals(settingValue);
+        return Objects.nonNull(setting) && "true".equals(setting.getSettingValue());
     }
 
+    public boolean isDisabled(String chatId, ChatSettingConstants name) {
+        return !isEnabled(chatId, name);
+    }
 }

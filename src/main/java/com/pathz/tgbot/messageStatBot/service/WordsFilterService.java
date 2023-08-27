@@ -30,7 +30,7 @@ public class WordsFilterService {
             return;
         }
         List<String> words = Arrays.stream(text.split(" ")).toList();
-        List<String> wordsToFilter = wordsFilterRepo.findAll().stream().map(WordsFilter::getWord).toList();
+        List<String> wordsToFilter = wordsFilterRepo.findAll().stream().map(WordsFilter::getWord).map(String::toLowerCase).toList();
         if (wordsToFilter.stream().anyMatch(s -> words.stream().anyMatch(s.toLowerCase()::equals))) {
             messageExecutor.deleteMessage(chatId, messageId);
         }

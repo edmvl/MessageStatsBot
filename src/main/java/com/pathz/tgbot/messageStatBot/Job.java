@@ -53,7 +53,7 @@ public class Job {
         System.out.println("sendChallenges finished at " + LocalDateTime.now());
     }
 
-    @Scheduled(cron = "0 3 0 * * ?")
+    @Scheduled(cron = "0 0 8 * * ?")
     public void sendHolidaysAllChat() {
         System.out.println("sendHolidaysAllChat started at " + LocalDateTime.now());
         holidayService.sendHolidaysAllChat();
