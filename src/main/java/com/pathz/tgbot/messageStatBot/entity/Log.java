@@ -36,4 +36,7 @@ public class Log {
     @Column(name = "photo")
     String photo;
 
+    @Column(name = "document")
+    String document;
+
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -64,8 +65,7 @@ public class MessageHandler implements Handler<Message> {
         wordsFilterService.deleteByFilter(chatId, messageId, userText);
         logService.save(
                 chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(),
-                userText, getMaxSizePhoto(message)
-
+                userText, getMaxSizePhoto(message), getDocumentId(message)
         );
         if (message.hasText()) {
             if (!userText.contains("/")) {
@@ -132,6 +132,14 @@ public class MessageHandler implements Handler<Message> {
         }
         statsService.processNewChatMembers(message);
         statsService.processLeftChatMembers(message);
+    }
+
+    private String getDocumentId(Message message) {
+        Document document = message.getDocument();
+        if (Objects.isNull(document)) {
+            return null;
+        }
+        return document.getFileId();
     }
 
     private String getMaxSizePhoto(Message message) {
