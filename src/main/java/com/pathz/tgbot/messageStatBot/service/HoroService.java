@@ -3,7 +3,7 @@ package com.pathz.tgbot.messageStatBot.service;
 import com.pathz.tgbot.messageStatBot.entity.Horo;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.HoroRepository;
-import com.pathz.tgbot.messageStatBot.util.HoroscopeEnum;
+import com.pathz.tgbot.messageStatBot.util.enums.HoroscopeEnum;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

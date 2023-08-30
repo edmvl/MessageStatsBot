@@ -2,7 +2,7 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.entity.ChatSettings;
 import com.pathz.tgbot.messageStatBot.repo.ChatSettingsRepo;
-import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
+import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;

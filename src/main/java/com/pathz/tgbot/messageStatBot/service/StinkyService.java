@@ -4,7 +4,7 @@ import com.pathz.tgbot.messageStatBot.entity.Stinky;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StinkyRepo;
-import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
+import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;

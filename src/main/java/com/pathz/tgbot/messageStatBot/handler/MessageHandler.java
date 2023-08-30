@@ -2,8 +2,8 @@ package com.pathz.tgbot.messageStatBot.handler;
 
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.service.*;
-import com.pathz.tgbot.messageStatBot.util.BotCommands;
-import com.pathz.tgbot.messageStatBot.util.HoroscopeEnum;
+import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
+import com.pathz.tgbot.messageStatBot.util.enums.HoroscopeEnum;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;

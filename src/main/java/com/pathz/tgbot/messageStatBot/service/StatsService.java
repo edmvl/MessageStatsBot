@@ -8,7 +8,7 @@ import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
-import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
+import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.pathz.tgbot.messageStatBot.util.BotCommands.values;
+import static com.pathz.tgbot.messageStatBot.util.enums.BotCommands.values;
 
 @Service
 public class StatsService {

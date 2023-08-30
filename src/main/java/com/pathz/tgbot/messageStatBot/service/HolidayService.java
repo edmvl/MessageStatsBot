@@ -2,7 +2,7 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
-import com.pathz.tgbot.messageStatBot.util.ChatSettingConstants;
+import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

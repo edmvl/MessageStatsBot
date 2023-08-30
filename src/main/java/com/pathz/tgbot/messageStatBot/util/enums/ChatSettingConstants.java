@@ -1,4 +1,4 @@
-package com.pathz.tgbot.messageStatBot.util;
+package com.pathz.tgbot.messageStatBot.util.enums;
 
 import lombok.Getter;
 

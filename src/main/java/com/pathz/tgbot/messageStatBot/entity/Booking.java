@@ -28,9 +28,9 @@ public class Booking {
     String destination;
 
     @Column(name = "seat")
-    String seat;
+    int seat;
 
     @Column(name = "accepted")
-    String accepted;
+    boolean accepted;
 
 }

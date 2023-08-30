@@ -29,6 +29,6 @@ public class Trip {
     String destination;
 
     @Column(name = "seat")
-    String seat;
+    int seat;
 
 }
