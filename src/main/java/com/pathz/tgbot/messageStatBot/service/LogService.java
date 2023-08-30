@@ -19,7 +19,7 @@ public class LogService extends MessageSender{
         this.logRepo = logRepo;
     }
 
-    public void save(String chatId, String chatName, String userId, String userName, LocalDateTime dateTime, String text) {
+    public void save(String chatId, String chatName, String userId, String userName, LocalDateTime dateTime, String text, String photo) {
         log.log(Level.INFO, chatName + " " + userName + " " + " " + text);
         Log log = new Log();
         log.setChatId(chatId);
@@ -28,6 +28,7 @@ public class LogService extends MessageSender{
         log.setUserName(userName);
         log.setDateTime(dateTime);
         log.setText(text);
+        log.setPhoto(photo);
         logRepo.save(log);
     }
 

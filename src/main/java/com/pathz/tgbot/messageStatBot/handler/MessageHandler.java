@@ -10,10 +10,14 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Component
@@ -56,8 +60,13 @@ public class MessageHandler implements Handler<Message> {
         Long userId = message.getFrom().getId();
         String userName = message.getFrom().getUserName();
         String userText = message.getText();
+        System.out.println(message);
         wordsFilterService.deleteByFilter(chatId, messageId, userText);
-        logService.save(chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(), userText);
+        logService.save(
+                chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(),
+                userText, getMaxSizePhoto(message)
+
+        );
         if (message.hasText()) {
             if (!userText.contains("/")) {
                 statsService.processStatistic(chatId.toString(), userId.toString(), userName, from);
@@ -123,6 +132,15 @@ public class MessageHandler implements Handler<Message> {
         }
         statsService.processNewChatMembers(message);
         statsService.processLeftChatMembers(message);
+    }
+
+    private String getMaxSizePhoto(Message message) {
+        List<PhotoSize> photo = message.getPhoto();
+        if (Objects.isNull(photo)) {
+            return null;
+        }
+        Optional<PhotoSize> max = photo.stream().max(Comparator.comparingInt(PhotoSize::getFileSize));
+        return max.map(PhotoSize::getFileId).orElse(null);
     }
 
     private void send(Message message, String text) {
