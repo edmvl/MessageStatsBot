@@ -39,4 +39,7 @@ public class Log {
     @Column(name = "document")
     String document;
 
+    @Column(name = "stiker")
+    String stiker;
+
 }

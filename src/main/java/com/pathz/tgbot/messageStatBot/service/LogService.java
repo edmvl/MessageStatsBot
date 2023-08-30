@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 @lombok.extern.java.Log
-public class LogService extends MessageSender{
+public class LogService extends MessageSender {
 
     private final LogRepo logRepo;
 
@@ -19,7 +19,10 @@ public class LogService extends MessageSender{
         this.logRepo = logRepo;
     }
 
-    public void save(String chatId, String chatName, String userId, String userName, LocalDateTime dateTime, String text, String photo, String documentId) {
+    public void save(
+            String chatId, String chatName, String userId, String userName, LocalDateTime dateTime,
+            String text, String photo, String documentId, String sticker
+    ) {
         log.log(Level.INFO, chatName + " " + userName + " " + " " + text);
         Log log = new Log();
         log.setChatId(chatId);
@@ -30,10 +33,11 @@ public class LogService extends MessageSender{
         log.setText(text);
         log.setPhoto(photo);
         log.setDocument(documentId);
+        log.setStiker(sticker);
         logRepo.save(log);
     }
 
-    public void sendChanged(Long chatId){
+    public void sendChanged(Long chatId) {
         List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId));
         String collect = userChangedHistoryByChatId.stream().map(s -> s + "\n").collect(Collectors.joining("===================\n"));
         sendMessage(chatId, collect);

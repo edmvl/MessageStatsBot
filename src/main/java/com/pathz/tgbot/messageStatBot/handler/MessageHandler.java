@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -65,7 +66,7 @@ public class MessageHandler implements Handler<Message> {
         wordsFilterService.deleteByFilter(chatId, messageId, userText);
         logService.save(
                 chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(),
-                userText, getMaxSizePhoto(message), getDocumentId(message)
+                userText, getMaxSizePhoto(message), getDocumentId(message), getSticker(message)
         );
         if (message.hasText()) {
             if (!userText.contains("/")) {
@@ -132,6 +133,11 @@ public class MessageHandler implements Handler<Message> {
         }
         statsService.processNewChatMembers(message);
         statsService.processLeftChatMembers(message);
+    }
+
+    private String getSticker(Message message) {
+        Sticker sticker = message.getSticker();
+        return Objects.nonNull(sticker) ? sticker.getFileId() : null;
     }
 
     private String getDocumentId(Message message) {
