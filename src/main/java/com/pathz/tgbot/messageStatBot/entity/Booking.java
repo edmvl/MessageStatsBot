@@ -21,6 +21,9 @@ public class Booking {
     @Column(name = "trip_id")
     Long tripId;
 
+    @Column(name = "date_time")
+    LocalDateTime dateTime;
+
     @Column(name = "start_location")
     String startFrom;
 

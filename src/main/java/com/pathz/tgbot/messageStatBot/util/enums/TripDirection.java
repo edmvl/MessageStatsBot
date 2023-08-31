@@ -1,22 +1,22 @@
 package com.pathz.tgbot.messageStatBot.util.enums;
 
 public enum TripDirection {
-    CHEBOKSARY("Чебоксары","Урмары - Чебоксары"),
-    URMARY("Чебоксары","Чебоксары - Урмары");
+    URMARY_CHEBOKSARY("Урмары","Чебоксары"),
+    CHEBOKSARY_URMARY("Чебоксары","Урмары"),
+    ;
+    private final String startLocation;
+    private final String finishLocation;
 
-    private final String name;
-    private final String description;
-
-    TripDirection(String name, String description) {
-        this.name = name;
-        this.description = description;
+    TripDirection(String startLocation, String finishLocation) {
+        this.startLocation = startLocation;
+        this.finishLocation = finishLocation;
     }
 
-    public String getDescription() {
-        return description;
+    public String getFinishLocation() {
+        return finishLocation;
     }
 
-    public String getName() {
-        return name;
+    public String getStartLocation() {
+        return startLocation;
     }
 }
