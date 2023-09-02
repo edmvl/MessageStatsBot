@@ -33,6 +33,7 @@ public class MessageHandler implements Handler<Message> {
     private final ChallengeService challengeService;
     private final HoroService horoService;
     private final WordsFilterService wordsFilterService;
+    private final TripService tripService;
 
     private final Logger logger = Logger.getLogger("MessageHandler");
 
@@ -42,7 +43,7 @@ public class MessageHandler implements Handler<Message> {
     @Lazy
     public MessageHandler(MessageExecutor messageExecutor, StatsService service, StinkyService stinkyService,
                           LogService logService, HolidayService holidayService, ChallengeService challengeService,
-                          HoroService horoService, WordsFilterService wordsFilterService) {
+                          HoroService horoService, WordsFilterService wordsFilterService, TripService tripService) {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
         this.stinkyService = stinkyService;
@@ -51,6 +52,7 @@ public class MessageHandler implements Handler<Message> {
         this.challengeService = challengeService;
         this.horoService = horoService;
         this.wordsFilterService = wordsFilterService;
+        this.tripService = tripService;
     }
 
     @Override
@@ -62,7 +64,6 @@ public class MessageHandler implements Handler<Message> {
         Long userId = message.getFrom().getId();
         String userName = message.getFrom().getUserName();
         String userText = message.getText();
-        System.out.println(message);
         wordsFilterService.deleteByFilter(chatId, messageId, userText);
         logService.save(
                 chatId.toString(), message.getChat().getTitle(), sender.getId().toString(), from, LocalDateTime.now(),
@@ -104,6 +105,9 @@ public class MessageHandler implements Handler<Message> {
             }
             if (userText.startsWith(BotCommands.CHANGED_USERS.getCommand())) {
                 logService.sendChanged(chatId);
+            }
+            if (userText.startsWith(BotCommands.TRIP.getCommand())) {
+                tripService.startTripFlow(chatId);
             }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
                 String[] s = userText.split(";");

@@ -14,7 +14,9 @@ public enum BotCommands {
     HOLIDAYS("/holidays", "Праздники сегодня"),
     GET_CHATTY_DAYS("/days", "статистика по дням"),
     CHALLANGE_START("/challenge", "начать розыгрыш", true),
-    CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш");
+    CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш"),
+    TRIP("/trip", "Создать поездку"),
+    ;
 
     public String getCommand() {
         return command;

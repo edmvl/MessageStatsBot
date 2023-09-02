@@ -8,8 +8,12 @@ import com.pathz.tgbot.messageStatBot.repo.TripRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.InlineQuery;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,5 +63,27 @@ public class TripService {
             message.setChatId(u);
             messageExecutor.sendMessage(message);
         });
+    }
+
+    public void startTripFlow(Long chatId) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
+        inlineKeyboardButtons.add(getInlineKeyboardButton(TripDirection.CHEBOKSARY_URMARY));
+        inlineKeyboardButtons.add(getInlineKeyboardButton(TripDirection.URMARY_CHEBOKSARY));
+        keyboard.add(inlineKeyboardButtons);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        SendMessage message = new SendMessage();
+        message.setReplyMarkup(inlineKeyboardMarkup);
+        message.setChatId(chatId);
+        message.setText("Выберите направление поездки");
+        messageExecutor.sendMessage(message);
+    }
+
+    private InlineKeyboardButton getInlineKeyboardButton(TripDirection tripDirection) {
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText(tripDirection.getStartLocation() + " - " + tripDirection.getFinishLocation());
+        inlineKeyboardButton.setCallbackData(tripDirection.name());
+        return inlineKeyboardButton;
     }
 }
