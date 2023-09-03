@@ -31,4 +31,7 @@ public class Trip {
     @Column(name = "seat")
     int seat;
 
+    @Column(name = "published")
+    boolean published;
+
 }
