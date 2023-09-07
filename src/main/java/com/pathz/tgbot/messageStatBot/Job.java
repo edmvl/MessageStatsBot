@@ -48,9 +48,7 @@ public class Job {
 
     @Scheduled(cron = "0 * 8-23 * * ?")
     public void sendChallenges() {
-        System.out.println("sendChallenges started at " + LocalDateTime.now());
         challengeService.finishAll();
-        System.out.println("sendChallenges finished at " + LocalDateTime.now());
     }
 
     @Scheduled(cron = "0 0 8 * * ?")

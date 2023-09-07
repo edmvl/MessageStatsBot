@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
 @Component
-public class InlineQueryHandler implements Handler<CallbackQuery>{
+public class InlineQueryHandler implements Handler<CallbackQuery> {
 
     private final MessageExecutor messageExecutor;
     private final TripService tripService;
@@ -27,17 +27,33 @@ public class InlineQueryHandler implements Handler<CallbackQuery>{
         String[] split = callbackQueryData.split(";");
         String command = split[0];
         String data = split[1];
-        if (InlineCommand.SELECT_DATE.getPrevStep().equals(command)) {
-            tripService.selectDate(chatId);
+        String id = split[2];
+
+        //-----------Trip Actions-------
+        if (InlineCommand.SELECT_TRIP_DIRECTION.getCommand().equals(command)) {
+            id = tripService.createTrip(userId, data);
         }
-        if (InlineCommand.SELECT_TIME.getPrevStep().equals(command)) {
-            tripService.selectTime(chatId);
+        if (InlineCommand.SELECT_TRIP_DATE.getCommand().equals(command)) {
+            tripService.updateDate(id, data);
         }
-        if (InlineCommand.SELECT_SEAT.getPrevStep().equals(command)) {
-            tripService.selectSeats(chatId);
+        if (InlineCommand.SELECT_TRIP_TIME.getCommand().equals(command)) {
+            tripService.updateTime(id, data);
         }
-        if (InlineCommand.CONFIRM.getPrevStep().equals(command)) {
-            tripService.publishTrip(chatId);
+        if (InlineCommand.SELECT_TRIP_SEAT.getCommand().equals(command)) {
+            tripService.updateSeat(id, data);
+        }
+        //----------Trip Flow----------
+        if (InlineCommand.SELECT_TRIP_DATE.getPrevStep().equals(command)) {
+            tripService.selectDate(chatId, id);
+        }
+        if (InlineCommand.SELECT_TRIP_TIME.getPrevStep().equals(command)) {
+            tripService.selectTime(chatId, id);
+        }
+        if (InlineCommand.SELECT_TRIP_SEAT.getPrevStep().equals(command)) {
+            tripService.selectSeats(chatId, id);
+        }
+        if (InlineCommand.TRIP_CONFIRM.getPrevStep().equals(command)) {
+            tripService.publishTrip(chatId, id);
         }
         messageExecutor.deleteMessage(chatId, messageId);
         System.out.println(callbackQuery);

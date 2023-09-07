@@ -107,7 +107,8 @@ public class MessageHandler implements Handler<Message> {
                 logService.sendChanged(chatId, messageId);
             }
             if (userText.startsWith(BotCommands.TRIP.getCommand())) {
-                tripService.startTripFlow(chatId, messageId);
+                messageExecutor.deleteMessage(chatId, messageId);
+                tripService.selectDirection(chatId);
             }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
                 String[] s = userText.split(";");
