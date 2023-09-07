@@ -37,7 +37,7 @@ public class LogService extends MessageSender {
         logRepo.save(log);
     }
 
-    public void sendChanged(Long chatId) {
+    public void sendChanged(Long chatId, Integer messageId) {
         List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId));
         String collect = userChangedHistoryByChatId.stream().map(s -> s + "\n").collect(Collectors.joining("===================\n"));
         sendMessage(chatId, collect);

@@ -5,6 +5,7 @@ import com.pathz.tgbot.messageStatBot.entity.Trip;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.BookingRepo;
 import com.pathz.tgbot.messageStatBot.repo.TripRepo;
+import com.pathz.tgbot.messageStatBot.util.enums.InlineCommand;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -72,20 +73,42 @@ public class TripService {
     }
 
     private List<InlineKeyboardButton> getTripDateButtons() {
-        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-
-        return null;
+        return List.of(
+                getInlineKeyboardButton("Сегодня", InlineCommand.SELECT_DATE.getCommand() + ";"  + "today"),
+                getInlineKeyboardButton("Завтра", InlineCommand.SELECT_DATE.getCommand() + ";"  + "tomorrow")
+        );
     }
 
-    public void selectTime() {
-
+    public void selectTime(Long chatId) {
+        sendInlineKeyboard(chatId, "Выберите время поездки", getTripTimeButtons());
     }
 
-    public void selectSeats() {
+    private List<InlineKeyboardButton> getTripTimeButtons() {
+        LocalDateTime now = LocalDateTime.now();
+        int hour = now.getHour();
 
+        return List.of(
+                getInlineKeyboardButton("23:00", InlineCommand.SELECT_TIME.getCommand()  + ";" + "23:00")
+        );
     }
 
-    public void startTripFlow(Long chatId) {
+    public void selectSeats(Long chatId) {
+        sendInlineKeyboard(chatId, "Выберите количкство свободных мест", getTripSeatsButtons());
+    }
+
+    private List<InlineKeyboardButton> getTripSeatsButtons() {
+        return List.of(
+                getInlineKeyboardButton("1", InlineCommand.SELECT_SEAT.getCommand() + ";"  + "1"),
+                getInlineKeyboardButton("2", InlineCommand.SELECT_SEAT.getCommand() + ";"  + "2"),
+                getInlineKeyboardButton("3", InlineCommand.SELECT_SEAT.getCommand() + ";"  + "3"),
+                getInlineKeyboardButton("4", InlineCommand.SELECT_SEAT.getCommand() + ";"  + "4"),
+                getInlineKeyboardButton("5", InlineCommand.SELECT_SEAT.getCommand() + ";"  + "5"),
+                getInlineKeyboardButton("6", InlineCommand.SELECT_SEAT.getCommand() + ";"  + "6")
+        );
+    }
+
+    public void startTripFlow(Long chatId, Integer messageId) {
+        messageExecutor.deleteMessage(chatId, messageId);
         sendInlineKeyboard(chatId, "Выберите направление поездки", getTripDirectionButtons());
     }
 
@@ -102,11 +125,20 @@ public class TripService {
     }
 
     private List<InlineKeyboardButton> getTripDirectionButtons() {
-        return Arrays.stream(TripDirection.values()).map(tripDirection -> {
-            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-            inlineKeyboardButton.setText(tripDirection.getStartLocation() + " - " + tripDirection.getFinishLocation());
-            inlineKeyboardButton.setCallbackData(tripDirection.name());
-            return inlineKeyboardButton;
-        }).toList();
+        return Arrays.stream(TripDirection.values()).map(this::mapDirections).toList();
+    }
+
+    private InlineKeyboardButton mapDirections(TripDirection direction) {
+        return getInlineKeyboardButton(
+                direction.getStartLocation() + " - " + direction.getFinishLocation(),
+                InlineCommand.SELECT_DIRECTION.getCommand() + ";" + direction.name()
+        );
+    }
+
+    private InlineKeyboardButton getInlineKeyboardButton(String text, String data) {
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText(text);
+        inlineKeyboardButton.setCallbackData(data);
+        return inlineKeyboardButton;
     }
 }

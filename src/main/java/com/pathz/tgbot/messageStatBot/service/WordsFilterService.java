@@ -36,7 +36,8 @@ public class WordsFilterService {
         }
     }
 
-    public void addWord(String word, Long userId, Long chatId) {
+    public void addWord(String word, Long userId, Long chatId, Integer messageId) {
+        messageExecutor.deleteMessage(chatId, messageId);
         Settings settings = settingsRepo.findByChatIdAndUserId(chatId.toString(), userId.toString());
         if (Objects.isNull(settings) || !Boolean.TRUE.equals(settings.getIsAdmin())) {
             WordsFilter wordsFilter = new WordsFilter();

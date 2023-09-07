@@ -104,10 +104,10 @@ public class MessageHandler implements Handler<Message> {
                 holidayService.sendHolidays(chatId, messageId);
             }
             if (userText.startsWith(BotCommands.CHANGED_USERS.getCommand())) {
-                logService.sendChanged(chatId);
+                logService.sendChanged(chatId, messageId);
             }
             if (userText.startsWith(BotCommands.TRIP.getCommand())) {
-                tripService.startTripFlow(chatId);
+                tripService.startTripFlow(chatId, messageId);
             }
             if (userText.startsWith(BotCommands.CHALLANGE_START.getCommand())) {
                 String[] s = userText.split(";");
@@ -121,7 +121,7 @@ public class MessageHandler implements Handler<Message> {
             if (userText.startsWith(BotCommands.ADD_WORD.getCommand())) {
                 String[] s = userText.split(" ");
                 if (s.length >= 2) {
-                    wordsFilterService.addWord(s[1], userId, chatId);
+                    wordsFilterService.addWord(s[1], userId, chatId, messageId);
                 }
             }
             if (userText.startsWith(BotCommands.CHALLANGE_REGISTRATION.getCommand())) {
