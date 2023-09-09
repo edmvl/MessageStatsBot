@@ -140,7 +140,7 @@ public class StatsService {
     public void sendStatAllChat() {
         for (String chatId : findAllChats()) {
             if (settingsService.isDisabled(chatId, ChatSettingConstants.ENABLE_STATS)) {
-                return;
+                continue;
             }
             try {
                 sendChatty(Long.valueOf(chatId));
