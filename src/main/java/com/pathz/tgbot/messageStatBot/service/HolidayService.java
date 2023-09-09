@@ -36,10 +36,9 @@ public class HolidayService {
         List<String> chatIds = findAllChats();
         chatIds.forEach(chatId -> {
             try {
-                if (settingsService.isDisabled(chatId, ChatSettingConstants.ENABLE_HOLIDAYS)) {
-                    return;
+                if (settingsService.isEnabled(chatId, ChatSettingConstants.ENABLE_HOLIDAYS)) {
+                    sendMessage(chatId, holidays);
                 }
-                sendMessage(chatId, holidays);
             } catch (Exception e) {
                 e.printStackTrace();
             }

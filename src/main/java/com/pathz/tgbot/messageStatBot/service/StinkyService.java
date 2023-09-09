@@ -63,7 +63,7 @@ public class StinkyService {
         List<String> chatIds = statsRepo.findDistinctChatId();
         for (String chatId : chatIds) {
             if (settingsService.isDisabled(chatId, ChatSettingConstants.ENABLE_STINKY)) {
-                return;
+                continue;
             }
             try {
                 sendStinky(Long.valueOf(chatId));
