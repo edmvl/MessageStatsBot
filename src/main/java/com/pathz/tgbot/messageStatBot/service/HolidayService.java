@@ -4,14 +4,25 @@ import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
+import com.rometools.rome.feed.synd.SyndCategory;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
+import lombok.SneakyThrows;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.data.convert.Jsr310Converters;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class HolidayService {
@@ -53,21 +64,20 @@ public class HolidayService {
             e.printStackTrace();
         }
     }
+
     public void sendHolidays(Long chatId, Integer messageId) {
         sendHolidays(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
     }
 
+    @SneakyThrows
     public String getHolidays() {
-        LocalDate now = LocalDate.now();
-        String url = MessageFormatter.getUrlByDate(now);
-        Document document = MessageFormatter.getHTMLPage(url);
-        if (Objects.isNull(document)){
-            return "";
-        }
-        Element body = document.body();
-        List<String> strings = body.select("span[itemprop='text']").eachText();
-        return "Праздники сегодня:\n" + String.join("\n", strings);
+        String url = "https://www.calend.ru/img/export/today-holidays.rss";
+        SyndFeed feed = new SyndFeedInput().build(new XmlReader(new URL(url)));
+        List<SyndEntry> entries = feed.getEntries();
+        return entries.stream()
+                .map(SyndEntry::getTitle)
+                .collect(Collectors.joining("\n"));
     }
 
     private void sendMessage(String chatId, String text) {
