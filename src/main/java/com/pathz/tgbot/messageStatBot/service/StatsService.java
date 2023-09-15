@@ -142,11 +142,7 @@ public class StatsService {
             if (settingsService.isDisabled(chatId, ChatSettingConstants.ENABLE_STATS)) {
                 continue;
             }
-            try {
-                sendChatty(Long.valueOf(chatId));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            sendChatty(Long.valueOf(chatId));
         }
 
     }
@@ -170,7 +166,7 @@ public class StatsService {
         sendMessage(chatId, messageEntities, text.toString());
     }
 
-    private List<MessageEntity> getMessageEntities2 (List<StatsViewDto> top, Long chatId, StringBuilder text) {
+    private List<MessageEntity> getMessageEntities2(List<StatsViewDto> top, Long chatId, StringBuilder text) {
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
             User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
@@ -181,7 +177,7 @@ public class StatsService {
         return messageEntities;
     }
 
-    private List<MessageEntity> getMessageEntities (List<Stats> top, Long chatId, StringBuilder text) {
+    private List<MessageEntity> getMessageEntities(List<Stats> top, Long chatId, StringBuilder text) {
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
             User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());

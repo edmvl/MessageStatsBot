@@ -37,23 +37,15 @@ public class HolidayService {
         String holidays = getHolidays();
         List<String> chatIds = findAllChats();
         chatIds.forEach(chatId -> {
-            try {
-                if (settingsService.isEnabled(chatId, ChatSettingConstants.ENABLE_HOLIDAYS)) {
-                    messageExecutor.sendMessage(chatId, holidays);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (settingsService.isEnabled(chatId, ChatSettingConstants.ENABLE_HOLIDAYS)) {
+                messageExecutor.sendMessage(chatId, holidays);
             }
         });
     }
 
     public void sendHolidays(Long chatId) {
         String holidays = getHolidays();
-        try {
-            messageExecutor.sendMessage(chatId.toString(), holidays);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        messageExecutor.sendMessage(chatId.toString(), holidays);
     }
 
     public void sendHolidays(Long chatId, Integer messageId) {
