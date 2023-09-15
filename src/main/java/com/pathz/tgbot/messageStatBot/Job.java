@@ -14,15 +14,17 @@ public class Job {
     private final ChallengeService challengeService;
     private final HoroService horoService;
     private final HolidayService holidayService;
+    private final RemindService remindService;
 
     public Job(StatsService statsService, StinkyService stinkyService, ChallengeService challengeService,
-               HoroService horoService, HolidayService holidayService
-    ) {
+               HoroService horoService, HolidayService holidayService,
+               RemindService remindService) {
         this.statsService = statsService;
         this.stinkyService = stinkyService;
         this.challengeService = challengeService;
         this.horoService = horoService;
         this.holidayService = holidayService;
+        this.remindService = remindService;
     }
 
     @Scheduled(cron = "55 59 12,23 * * ?")
@@ -56,5 +58,11 @@ public class Job {
         System.out.println("sendHolidaysAllChat started at " + LocalDateTime.now());
         holidayService.sendHolidaysAllChat();
         System.out.println("sendHolidaysAllChat finished at " + LocalDateTime.now());
+    }
+    @Scheduled(cron = "0 0 10 * * ?")
+    public void sendRemindersAllChat() {
+        System.out.println("sendRemindersAllChat started at " + LocalDateTime.now());
+        remindService.playReminder();
+        System.out.println("sendRemindersAllChat finished at " + LocalDateTime.now());
     }
 }

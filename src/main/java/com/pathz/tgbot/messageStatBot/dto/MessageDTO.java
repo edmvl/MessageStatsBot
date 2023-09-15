@@ -11,6 +11,7 @@ public class MessageDTO {
     private Long chatId;
     private String chatName;
     private Integer messageId;
+    private Integer replyMessageId;
     private Long userId;
     private String userName;
     private String userText;

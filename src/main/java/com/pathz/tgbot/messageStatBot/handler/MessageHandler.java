@@ -50,6 +50,7 @@ public class MessageHandler implements Handler<Message> {
                 .chatId(message.getChatId())
                 .chatName(message.getChat().getTitle())
                 .messageId(message.getMessageId())
+                .replyMessageId(Objects.nonNull(message.getReplyToMessage()) ? message.getReplyToMessage().getMessageId() : null)
                 .userId(message.getFrom().getId())
                 .userName(message.getFrom().getUserName())
                 .userText(message.hasText() ? String.join("", message.getText().split("@" + botUsername)) : "")
