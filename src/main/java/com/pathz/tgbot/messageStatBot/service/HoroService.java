@@ -99,7 +99,7 @@ public class HoroService {
         LocalDate now = LocalDate.now();
         String sysname = horoscopeEnum.getSysname();
         Horo horo = getOrReloadHoro(now, sysname);
-        sendMessage(chatId, getFormattedHoroTextToDate(horo.getText(), now, horoscopeEnum));
+        messageExecutor.sendMessage(chatId, getFormattedHoroTextToDate(horo.getText(), now, horoscopeEnum));
     }
 
     @SneakyThrows
@@ -116,18 +116,11 @@ public class HoroService {
                 return horoByDateAndSign.stream().findFirst().get();
             }
         }
-        return null;
+        return new Horo();
     }
 
     private String getFormattedHoroTextToDate(String text, LocalDate date, HoroscopeEnum horoscopeEnum) {
         return horoscopeEnum.getName() + " на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n" + text;
-    }
-
-    private void sendMessage(Long chatId, String text) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(text);
-        messageExecutor.sendMessage(sendMessage);
     }
 
 }

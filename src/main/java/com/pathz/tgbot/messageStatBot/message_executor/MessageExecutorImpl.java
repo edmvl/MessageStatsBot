@@ -27,6 +27,32 @@ public class MessageExecutorImpl implements MessageExecutor {
     }
 
     @Override
+    public void sendMessage(String chatId, String text, Integer replyMessageId) {
+        SendMessage sendMessage = new SendMessage();
+        if (Objects.nonNull(replyMessageId)) {
+            sendMessage.setReplyToMessageId(replyMessageId);
+        }
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+        sendMessage(sendMessage);
+    }
+
+    @Override
+    public void sendMessage(Long chatId, String text, Integer replyMessageId) {
+        sendMessage(String.valueOf(chatId), text, replyMessageId);
+    }
+
+    @Override
+    public void sendMessage(String chatId, String text) {
+        sendMessage(chatId, text, null);
+    }
+
+    @Override
+    public void sendMessage(Long chatId, String text) {
+        sendMessage(String.valueOf(chatId), text, null);
+    }
+
+    @Override
     public User searchUsersInChat(String chatId, String userId) {
         GetChatMember getChatMember = new GetChatMember();
         getChatMember.setChatId(chatId);

@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.entity.Log;
+import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,15 @@ import java.util.stream.Collectors;
 
 @Service
 @lombok.extern.java.Log
-public class LogService extends MessageSender {
+public class LogService {
 
     private final LogRepo logRepo;
 
-    public LogService(LogRepo logRepo) {
+    private final MessageExecutor messageExecutor;
+
+    public LogService(LogRepo logRepo, MessageExecutor messageExecutor) {
         this.logRepo = logRepo;
+        this.messageExecutor = messageExecutor;
     }
 
     public void save(
@@ -40,6 +44,6 @@ public class LogService extends MessageSender {
     public void sendChanged(Long chatId, Integer messageId) {
         List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId));
         String collect = userChangedHistoryByChatId.stream().map(s -> s + "\n").collect(Collectors.joining("===================\n"));
-        sendMessage(chatId, collect);
+        messageExecutor.sendMessage(chatId, collect);
     }
 }

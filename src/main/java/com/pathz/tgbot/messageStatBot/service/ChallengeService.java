@@ -33,7 +33,7 @@ public class ChallengeService {
     ) {
         Challenge existed = challengeRepo.findByChatIdAndDateTimeEndAfterAndFinished(chatId, LocalDateTime.now(), false);
         if (Objects.nonNull(existed)) {
-            sendMessage(messageId, Long.valueOf(chatId), "Новое событие можно запустить только после завершения текущих");
+            messageExecutor.sendMessage(chatId, "Новое событие можно запустить только после завершения текущих", messageId);
             return;
         }
 
@@ -46,9 +46,10 @@ public class ChallengeService {
         challenge.setFinished(false);
         Challenge saved = challengeRepo.save(challenge);
 
-        sendMessage(
-                messageId, Long.valueOf(chatId),
-                description + " запущен, для регистрации введите " + BotCommands.CHALLANGE_REGISTRATION.getCommand() + saved.getId()
+        messageExecutor.sendMessage(
+                chatId,
+                description + " запущен, для регистрации введите " + BotCommands.CHALLANGE_REGISTRATION.getCommand() + saved.getId(),
+                messageId
         );
         messageExecutor.deleteMessage(Long.valueOf(chatId), messageId);
     }
@@ -56,7 +57,7 @@ public class ChallengeService {
     public void reg(String challengeId, Long userId, String userName, Integer messageId, Long chatId) {
         ChallengeReg existed = challengeRegRepo.findByChallengeIdAndAndUserId(Long.valueOf(challengeId), userId.toString());
         if (Objects.nonNull(existed)) {
-            sendMessage(messageId, chatId, "Вы уже зарегистрированы");
+            messageExecutor.sendMessage(chatId, "Вы уже зарегистрированы", messageId);
             return;
         }
         ChallengeReg challengeReg = new ChallengeReg();
@@ -65,17 +66,7 @@ public class ChallengeService {
         challengeReg.setUserName(userName);
         challengeReg.setUserName(userName);
         challengeRegRepo.save(challengeReg);
-        sendMessage(messageId, chatId, "Вы зарегистрированы");
-    }
-
-    private void sendMessage(Integer messageId, Long chatId, String text) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        if (Objects.nonNull(messageId)) {
-            sendMessage.setReplyToMessageId(messageId);
-        }
-        sendMessage.setText(text);
-        messageExecutor.sendMessage(sendMessage);
+        messageExecutor.sendMessage(chatId, "Вы зарегистрированы", messageId);
     }
 
     public void finish(String chatId) {
@@ -83,7 +74,7 @@ public class ChallengeService {
         if (Objects.isNull(nearest)) {
             return;
         }
-        sendMessage(null, Long.valueOf(chatId), "Закончился " + nearest.getDescription());
+        messageExecutor.sendMessage(chatId, "Закончился " + nearest.getDescription());
         nearest.setFinished(true);
         challengeRepo.save(nearest);
         List<ChallengeReg> regs = challengeRegRepo.findByChallengeId(nearest.getId());
