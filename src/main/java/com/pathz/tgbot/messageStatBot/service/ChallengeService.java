@@ -1,13 +1,16 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Challenge;
 import com.pathz.tgbot.messageStatBot.entity.ChallengeReg;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.ChallengeRegRepo;
 import com.pathz.tgbot.messageStatBot.repo.ChallengeRepo;
+import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ChallengeService {
+public class ChallengeService implements CommandExecutable {
 
     private final ChallengeRepo challengeRepo;
     private final ChallengeRegRepo challengeRegRepo;
@@ -104,5 +107,25 @@ public class ChallengeService {
     public void finishAll() {
         List<String> strings = challengeRepo.findAll().stream().map(Challenge::getChatId).distinct().toList();
         strings.forEach(this::finish);
+    }
+
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        if (messageDTO.getUserText().startsWith(BotCommands.CHALLANGE_START.getCommand())) {
+            String[] s = messageDTO.getUserText().split(";");
+            if (s.length >= 3) {
+                start(
+                        messageDTO.getMessageId(), messageDTO.getChatId().toString(), messageDTO.getChatName(),
+                        LocalDateTime.now(), LocalDateTime.now().plusDays(Integer.parseInt(s[1])), s[2]
+                );
+            }
+        }
+        if (messageDTO.getUserText().startsWith(BotCommands.CHALLANGE_REGISTRATION.getCommand())) {
+            String[] s = messageDTO.getUserText().split(BotCommands.CHALLANGE_REGISTRATION.getCommand());
+            if (s.length >= 1) {
+                reg(s[1], messageDTO.getUserId(), messageDTO.getUserName(), messageDTO.getMessageId(), messageDTO.getChatId());
+            }
+        }
+
     }
 }

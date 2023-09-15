@@ -1,5 +1,6 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Horo;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.HoroRepository;
@@ -9,7 +10,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class HoroService {
+public class HoroService implements CommandExecutable {
 
     private final HoroRepository horoRepository;
 
@@ -123,4 +123,11 @@ public class HoroService {
         return horoscopeEnum.getName() + " на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n" + text;
     }
 
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        HoroscopeEnum horoscopeEnum = HoroscopeEnum.byName(messageDTO.getUserText());
+        if (Objects.nonNull(horoscopeEnum)) {
+            sendHoro(messageDTO.getChatId(), horoscopeEnum);
+        }
+    }
 }

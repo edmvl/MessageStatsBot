@@ -1,27 +1,34 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Booking;
 import com.pathz.tgbot.messageStatBot.entity.Trip;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.BookingRepo;
 import com.pathz.tgbot.messageStatBot.repo.TripRepo;
+import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
+import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalField;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.pathz.tgbot.messageStatBot.util.enums.InlineCommand.*;
 
 @Service
-public class TripService {
+public class TripService implements CommandExecutable {
     private final MessageExecutor messageExecutor;
     private final TripRepo tripRepo;
     private final BookingRepo bookingRepo;
@@ -202,6 +209,13 @@ public class TripService {
             Trip trip = byId.get();
             trip.setSeat(Integer.parseInt(data));
             tripRepo.save(trip);
+        }
+    }
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        if (messageDTO.getUserText().startsWith(BotCommands.TRIP.getCommand())) {
+            messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
+            selectDirection(messageDTO.getChatId());
         }
     }
 }

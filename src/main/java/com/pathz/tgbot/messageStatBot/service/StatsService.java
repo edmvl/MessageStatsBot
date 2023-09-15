@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.ChattyDaysDto;
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.dto.StatsDto;
 import com.pathz.tgbot.messageStatBot.dto.StatsViewDto;
 import com.pathz.tgbot.messageStatBot.entity.Settings;
@@ -8,8 +9,10 @@ import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
+import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -29,7 +32,10 @@ import java.util.stream.Collectors;
 import static com.pathz.tgbot.messageStatBot.util.enums.BotCommands.values;
 
 @Service
-public class StatsService {
+public class StatsService implements CommandExecutable {
+
+    @Value("${telegram.bot.username}")
+    private String botUsername;
 
     private final StatsRepo statsRepo;
     private final SettingsRepo settingsRepo;
@@ -282,5 +288,29 @@ public class StatsService {
     public void sendStats(Long chatId, Integer messageId, String date) {
         LocalDate dt = Objects.isNull(date) ? LocalDate.now() : LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         sendStats(chatId, messageId, dt);
+    }
+
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        if (messageDTO.getUserText().startsWith(BotCommands.GET_STATS_ALL.getCommand())) {
+            String[] s = messageDTO.getUserText().split(" ");
+            sendStats(messageDTO.getChatId(), messageDTO.getMessageId(), s.length > 1 ? s[1] : null);
+        }
+        if (messageDTO.getUserText().startsWith(BotCommands.GET_WEEK_STATS.getCommand())) {
+            sendWeekStats(messageDTO.getChatId(), messageDTO.getMessageId());
+        }
+        if (messageDTO.getUserText().startsWith(BotCommands.GET_CHATTY.getCommand())) {
+            sendChatty(messageDTO.getChatId(), messageDTO.getMessageId());
+        }
+        if (messageDTO.getUserText().startsWith(BotCommands.GET_CHATTY_DAYS.getCommand())) {
+            sendChattyDays(messageDTO.getChatId(), messageDTO.getMessageId());
+        }
+        if (messageDTO.getUserText().startsWith(BotCommands.SKIP_STATS.getCommand())) {
+            skipStats(messageDTO.getChatId(), messageDTO.getUserId(), messageDTO.getMessageId());
+        }
+        if (!messageDTO.getUserText().contains("/")) {
+            processStatistic(messageDTO.getChatId().toString(), messageDTO.getUserId().toString(), messageDTO.getUserName(), messageDTO.getFrom());
+        }
+
     }
 }

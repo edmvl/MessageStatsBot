@@ -1,7 +1,9 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
+import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -9,14 +11,13 @@ import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class HolidayService {
+public class HolidayService implements CommandExecutable {
 
     private final MessageExecutor messageExecutor;
 
@@ -63,4 +64,10 @@ public class HolidayService {
                 .collect(Collectors.joining("\n"));
     }
 
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        if (messageDTO.getUserText().startsWith(BotCommands.HOLIDAYS.getCommand())) {
+            sendHolidays(messageDTO.getChatId(), messageDTO.getMessageId());
+        }
+    }
 }

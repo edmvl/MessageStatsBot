@@ -1,18 +1,23 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Settings;
 import com.pathz.tgbot.messageStatBot.entity.WordsFilter;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
 import com.pathz.tgbot.messageStatBot.repo.WordsFilterRepo;
+import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
+import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 @Service
-public class WordsFilterService {
+public class WordsFilterService implements CommandExecutable {
     private final MessageExecutor messageExecutor;
 
     private final WordsFilterRepo wordsFilterRepo;
@@ -25,14 +30,14 @@ public class WordsFilterService {
         this.settingsRepo = settingsRepo;
     }
 
-    public void deleteByFilter(Long chatId, Integer messageId, String text) {
-        if (Objects.isNull(text)) {
+    public void deleteByFilter(MessageDTO messageDTO) {
+        if (Objects.isNull(messageDTO.getUserText())) {
             return;
         }
-        List<String> words = Arrays.stream(text.split(" ")).toList();
+        List<String> words = Arrays.stream(messageDTO.getUserText().split(" ")).toList();
         List<String> wordsToFilter = wordsFilterRepo.findAll().stream().map(WordsFilter::getWord).map(String::toLowerCase).toList();
         if (wordsToFilter.stream().anyMatch(s -> words.stream().anyMatch(s.toLowerCase()::equals))) {
-            messageExecutor.deleteMessage(chatId, messageId);
+            messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
         }
     }
 
@@ -45,4 +50,15 @@ public class WordsFilterService {
             wordsFilterRepo.save(wordsFilter);
         }
     }
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        if (messageDTO.getUserText().startsWith(BotCommands.ADD_WORD.getCommand())) {
+            String[] s = messageDTO.getUserText().split(" ");
+            if (s.length >= 2) {
+                addWord(s[1], messageDTO.getUserId(), messageDTO.getChatId(), messageDTO.getMessageId());
+            }
+        }
+
+    }
+
 }

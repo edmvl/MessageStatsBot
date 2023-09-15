@@ -1,12 +1,15 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Stinky;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.repo.StinkyRepo;
+import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -15,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class StinkyService {
+public class StinkyService implements CommandExecutable {
 
     private final StinkyRepo stinkyRepo;
     private final StatsRepo statsRepo;
@@ -59,6 +62,7 @@ public class StinkyService {
         sendStinky(chatId);
         messageExecutor.deleteMessage(chatId, messageId);
     }
+
     public void sendStinkyAllChat() {
         List<String> chatIds = statsRepo.findDistinctChatId();
         for (String chatId : chatIds) {
@@ -111,5 +115,11 @@ public class StinkyService {
         sendMessage.setText(text);
         sendMessage.setChatId(chatId);
         messageExecutor.sendMessage(sendMessage);
+    }
+    @Override
+    public void executeCommand(MessageDTO messageDTO) {
+        if (messageDTO.getUserText().startsWith(BotCommands.GET_STINKY_ASS.getCommand())) {
+            sendStinky(messageDTO.getChatId(), messageDTO.getMessageId());
+        }
     }
 }

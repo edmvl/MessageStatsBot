@@ -5,7 +5,6 @@ import java.util.List;
 
 public enum InlineCommand {
 
-
     SELECT_TRIP_DIRECTION("trip_direction", "Направление поездки"),
     SELECT_TRIP_DATE("trip_date", "Выбор даты"),
     SELECT_TRIP_TIME("trip_time", "Выбор времени"),
