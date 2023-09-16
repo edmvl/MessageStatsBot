@@ -15,8 +15,10 @@ public class StatsDto {
 
     String chatId;
     String userId;
+
     LocalDate date;
     int count;
+
     String login;
 
     String name;

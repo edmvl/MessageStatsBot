@@ -2,25 +2,22 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.ChattyDaysDto;
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
-import com.pathz.tgbot.messageStatBot.dto.StatsDto;
 import com.pathz.tgbot.messageStatBot.dto.StatsViewDto;
 import com.pathz.tgbot.messageStatBot.entity.Settings;
-import com.pathz.tgbot.messageStatBot.entity.Stats;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
+import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
-import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
-import com.pathz.tgbot.messageStatBot.util.mapper.StatsDtoMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -37,27 +34,19 @@ public class StatsService implements CommandExecutable {
     @Value("${telegram.bot.username}")
     private String botUsername;
 
-    private final StatsRepo statsRepo;
+    private final LogRepo logRepo;
     private final SettingsRepo settingsRepo;
-    private final StatsDtoMapper statsDtoMapper;
     private final MessageExecutor messageExecutor;
 
     private final SettingsService settingsService;
 
-    public StatsService(StatsRepo statsRepo, SettingsRepo settingsRepo, StatsDtoMapper statsDtoMapper, MessageExecutor messageExecutor, SettingsService settingsService) {
-        this.statsRepo = statsRepo;
+    public StatsService(
+            LogRepo logRepo, SettingsRepo settingsRepo, MessageExecutor messageExecutor, SettingsService settingsService
+    ) {
+        this.logRepo = logRepo;
         this.settingsRepo = settingsRepo;
-        this.statsDtoMapper = statsDtoMapper;
         this.messageExecutor = messageExecutor;
         this.settingsService = settingsService;
-    }
-
-    public boolean isExistByMessage(String chatId, String userId, LocalDate date) {
-        return statsRepo.existsByUserIdAndChatIdAndAndDate(chatId, userId, date);
-    }
-
-    public void processStatistic(String chatId, String userId, String userName, String name) {
-        processCounting(chatId, userId, userName, name);
     }
 
     public String getHelp() {
@@ -66,81 +55,28 @@ public class StatsService implements CommandExecutable {
         );
     }
 
-    public void processNewChatMembers(Message message) {
-        List<User> newChatMembers = message.getNewChatMembers();
-        if (Objects.isNull(newChatMembers) || newChatMembers.size() == 0) {
-            return;
-        }
-        newChatMembers.forEach(user -> {
-            if (!statsRepo.existsByUserIdAndChatIdAndAndDate(user.getId().toString(), message.getChatId().toString(), LocalDate.now())) {
-                StatsDto statsDto = new StatsDto(
-                        message.getChatId().toString(),
-                        user.getId().toString(),
-                        LocalDate.now(),
-                        0,
-                        user.getUserName(),
-                        user.getFirstName() + " " + user.getLastName()
-                );
-                Stats stats = statsDtoMapper.mapToEntity(statsDto);
-                statsRepo.save(stats);
-            }
-        });
+    public List<StatsViewDto> getTop10ChattyUserId(Long chatId) {
+        LocalDate startOfDay = LocalDate.now();
+        LocalDateTime localDateTime = startOfDay.atStartOfDay();
+        LocalDateTime endDate = startOfDay.atStartOfDay().withHour(23).withMinute(59).withSecond(59);
+        return logRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId.toString(), localDateTime, endDate);
     }
 
-    public void processLeftChatMembers(Message message) {
-        User leftChatMember = message.getLeftChatMember();
-        if (Objects.isNull(leftChatMember)) {
-            return;
-        }
-        Stats byUserIdAndChatId = statsRepo.findByUserIdAndChatIdAndDate(
-                leftChatMember.getId().toString(), message.getChatId().toString(), LocalDate.now()
-        );
-        statsRepo.delete(byUserIdAndChatId);
-    }
-
-    public List<Stats> getTop10ChattyUserId(Long chatId) {
-        return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId.toString(), LocalDate.now());
-    }
-
-    public List<Stats> getTopChattyUserId(Long chatId, LocalDate date) {
-        return statsRepo.findByChatIdAndDateOrderByCountDesc(chatId.toString(), date);
+    public List<StatsViewDto> getTopChattyUserId(Long chatId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endDate = date.atStartOfDay().withHour(23).withMinute(59).withSecond(59);
+        return logRepo.findByChatIdAndDateBetweenOrderByCountDesc(chatId.toString(), startOfDay, endDate);
     }
 
     public List<StatsViewDto> getTopChattyWeek(Long chatId) {
-        LocalDate startDate = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-        LocalDate endDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-        return statsRepo.findByChatIdAndDateBetweenOrderByCountDesc(chatId.toString(), startDate, endDate);
+        LocalDateTime startDate = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.MONDAY)).atStartOfDay();
+        LocalDateTime endDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
+                .atStartOfDay().withHour(23).withMinute(59).withSecond(59);
+        return logRepo.findByChatIdAndDateBetweenOrderByCountDesc(chatId.toString(), startDate, endDate);
     }
 
-    public List<Stats> getTop10ChattyUserId(String chatId) {
-        return statsRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId, LocalDate.now());
-    }
-
-    private void processCounting(String chatId, String userId, String userName, String name) {
-        Settings byChatIdAndUserId = settingsRepo.findByChatIdAndUserId(chatId, userId);
-        if (Objects.nonNull(byChatIdAndUserId) && byChatIdAndUserId.getSkipStats()) {
-            return;
-        }
-        if (isExistByMessage(userId, chatId, LocalDate.now())) {
-            Stats found = statsRepo.findByUserIdAndChatIdAndDate(userId, chatId, LocalDate.now());
-            found.setCount(found.getCount() + 1);
-            statsRepo.save(found);
-        } else {
-            StatsDto statsDto = new StatsDto(
-                    chatId,
-                    userId,
-                    LocalDate.now(),
-                    1,
-                    userName,
-                    name
-            );
-            Stats stats = statsDtoMapper.mapToEntity(statsDto);
-            statsRepo.save(stats);
-        }
-    }
-
-    private List<String> findAllChats() {
-        return statsRepo.findDistinctChatId();
+    public List<String> findAllChats() {
+        return logRepo.findDistinctChatId();
     }
 
     public void sendStatAllChat() {
@@ -154,9 +90,9 @@ public class StatsService implements CommandExecutable {
     }
 
     public void sendStats(Long chatId, LocalDate date) {
-        List<Stats> top = getTopChattyUserId(chatId, date);
+        List<StatsViewDto> top = getTopChattyUserId(chatId, date);
         StringBuilder text = new StringBuilder("Статистика на " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\n");
-        int sum = top.stream().map(Stats::getCount).mapToInt(value -> value).sum();
+        int sum = top.stream().map(StatsViewDto::getCount).mapToInt(value -> value).sum();
         if (date.equals(LocalDate.now())) {
             text = new StringBuilder("Паянхи статистика:\nВсего:" + sum + "\n");
         }
@@ -183,7 +119,7 @@ public class StatsService implements CommandExecutable {
         return messageEntities;
     }
 
-    private List<MessageEntity> getMessageEntities(List<Stats> top, Long chatId, StringBuilder text) {
+    private List<MessageEntity> getMessageEntities(List<StatsViewDto> top, Long chatId, StringBuilder text) {
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
             User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
@@ -232,7 +168,7 @@ public class StatsService implements CommandExecutable {
     }
 
     public void sendChatty(Long chatId) {
-        List<Stats> top = getTop10ChattyUserId(chatId);
+        List<StatsViewDto> top = getTop10ChattyUserId(chatId);
         StringBuilder text = new StringBuilder();
         text.append("Сурăх тути çиекеннисем:\n");
         List<MessageEntity> messageEntities = getMessageEntities(top, chatId, text);
@@ -240,7 +176,7 @@ public class StatsService implements CommandExecutable {
     }
 
     public void sendChattyDays(Long chatId) {
-        List<ChattyDaysDto> topChattyDays = statsRepo.findTopChattyDays(chatId.toString());
+        List<ChattyDaysDto> topChattyDays = logRepo.findTopChattyDays(chatId.toString());
         String message = topChattyDays.stream()
                 .map(dto -> dto.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " (" + dto.getSm() + " хут пакăлтатнă)").collect(Collectors.joining("\n"));
         SendMessage sendMessage = new SendMessage();
@@ -308,9 +244,5 @@ public class StatsService implements CommandExecutable {
         if (messageDTO.getUserText().startsWith(BotCommands.SKIP_STATS.getCommand())) {
             skipStats(messageDTO.getChatId(), messageDTO.getUserId(), messageDTO.getMessageId());
         }
-        if (!messageDTO.getUserText().contains("/")) {
-            processStatistic(messageDTO.getChatId().toString(), messageDTO.getUserId().toString(), messageDTO.getUserName(), messageDTO.getFrom());
-        }
-
     }
 }

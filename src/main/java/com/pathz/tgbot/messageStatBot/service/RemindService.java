@@ -4,8 +4,6 @@ import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Remind;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.RemindRepo;
-import com.pathz.tgbot.messageStatBot.repo.SettingsRepo;
-import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +13,12 @@ import java.util.List;
 public class RemindService implements CommandExecutable {
     private final MessageExecutor messageExecutor;
     private final RemindRepo remindRepo;
-    private final StatsRepo statsRepo;
+    private final StatsService statsService;
 
-    public RemindService(MessageExecutor messageExecutor, RemindRepo remindRepo, SettingsRepo settingsRepo, StatsRepo statsRepo) {
+    public RemindService(MessageExecutor messageExecutor, RemindRepo remindRepo, StatsService statsService) {
         this.messageExecutor = messageExecutor;
         this.remindRepo = remindRepo;
-        this.statsRepo = statsRepo;
+        this.statsService = statsService;
     }
 
     public void addReminder(Long chatId, Long userId, Integer replyMessageId, String text) {
@@ -44,12 +42,10 @@ public class RemindService implements CommandExecutable {
     }
 
     public void playReminder() {
-        List<String> distinctChatId = statsRepo.findDistinctChatId();
+        List<String> distinctChatId = statsService.findAllChats();
         distinctChatId.forEach(s -> {
             List<Remind> allByActiveIsTrueAndChatId = remindRepo.findAllByActiveIsTrueAndChatId(s);
-            allByActiveIsTrueAndChatId.forEach(remind -> {
-                messageExecutor.sendMessage(remind.getChatId(), remind.getText(), Integer.valueOf(remind.getReplyMessageId()));
-            });
+            allByActiveIsTrueAndChatId.forEach(remind -> messageExecutor.sendMessage(remind.getChatId(), remind.getText(), Integer.valueOf(remind.getReplyMessageId())));
         });
     }
 }

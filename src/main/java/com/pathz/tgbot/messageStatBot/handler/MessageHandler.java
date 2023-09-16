@@ -74,8 +74,6 @@ public class MessageHandler implements Handler<Message> {
         if (getAllBotCommands().stream().anyMatch(s -> messageDTO.getUserText().toLowerCase(Locale.ROOT).startsWith(s.toLowerCase()))) {
             commandExecutables.forEach(service -> service.executeCommand(messageDTO));
         }
-        statsService.processNewChatMembers(message);
-        statsService.processLeftChatMembers(message);
     }
 
     private List<String> getAllBotCommands() {

@@ -2,7 +2,6 @@ package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
-import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import com.rometools.rome.feed.synd.SyndEntry;
@@ -21,17 +20,17 @@ public class HolidayService implements CommandExecutable {
 
     private final MessageExecutor messageExecutor;
 
-    private final StatsRepo statsRepo;
+    private final StatsService statsService;
     private final SettingsService settingsService;
 
-    public HolidayService(MessageExecutor messageExecutor, StatsRepo statsRepo, SettingsService settingsService) {
+    public HolidayService(MessageExecutor messageExecutor, StatsService statsService, SettingsService settingsService) {
         this.messageExecutor = messageExecutor;
-        this.statsRepo = statsRepo;
+        this.statsService = statsService;
         this.settingsService = settingsService;
     }
 
     public List<String> findAllChats() {
-        return statsRepo.findDistinctChatId();
+        return statsService.findAllChats();
     }
 
     public void sendHolidaysAllChat() {

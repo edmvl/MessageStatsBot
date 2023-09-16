@@ -3,13 +3,12 @@ package com.pathz.tgbot.messageStatBot.service;
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Stinky;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
-import com.pathz.tgbot.messageStatBot.repo.StatsRepo;
+import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import com.pathz.tgbot.messageStatBot.repo.StinkyRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.ChatSettingConstants;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -21,15 +20,17 @@ import java.util.Objects;
 public class StinkyService implements CommandExecutable {
 
     private final StinkyRepo stinkyRepo;
-    private final StatsRepo statsRepo;
+    private final LogRepo logRepo;
+    private final StatsService statsService;
 
     private final SettingsService settingsService;
 
     private final MessageExecutor messageExecutor;
 
-    public StinkyService(StinkyRepo stinkyRepo, StatsRepo statsRepo, SettingsService settingsService, MessageExecutor messageExecutor) {
+    public StinkyService(StinkyRepo stinkyRepo, LogRepo logRepo, StatsService statsService, SettingsService settingsService, MessageExecutor messageExecutor) {
         this.stinkyRepo = stinkyRepo;
-        this.statsRepo = statsRepo;
+        this.logRepo = logRepo;
+        this.statsService = statsService;
         this.settingsService = settingsService;
         this.messageExecutor = messageExecutor;
     }
@@ -47,13 +48,13 @@ public class StinkyService implements CommandExecutable {
     }
 
     public String getStinky(String chatId) {
-        List<String> distinctUserIdByChatId = statsRepo.findDistinctUserIdByChatId(chatId);
+        List<String> distinctUserIdByChatId = logRepo.findDistinctUserIdByChatId(chatId);
         int i = (int) (Math.random() * distinctUserIdByChatId.size());
         return distinctUserIdByChatId.get(i);
     }
 
     public String getStinky(String chatId, String userId) {
-        List<String> distinctUserIdByChatId = statsRepo.findDistinctUserIdByChatId(chatId);
+        List<String> distinctUserIdByChatId = logRepo.findDistinctUserIdByChatId(chatId);
         int i = (int) (Math.random() * distinctUserIdByChatId.size());
         return distinctUserIdByChatId.get(i);
     }
@@ -64,7 +65,7 @@ public class StinkyService implements CommandExecutable {
     }
 
     public void sendStinkyAllChat() {
-        List<String> chatIds = statsRepo.findDistinctChatId();
+        List<String> chatIds = statsService.findAllChats();
         for (String chatId : chatIds) {
             if (settingsService.isDisabled(chatId, ChatSettingConstants.ENABLE_STINKY)) {
                 continue;
