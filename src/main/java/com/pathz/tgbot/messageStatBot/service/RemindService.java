@@ -39,8 +39,8 @@ public class RemindService implements CommandExecutable {
         String reminderText = userText.replaceFirst(BotCommands.REMINDER.getCommand(), "");
         if (userText.startsWith(BotCommands.REMINDER.getCommand())) {
             addReminder(messageDTO.getChatId(), messageDTO.getUserId(), messageDTO.getReplyMessageId(), reminderText);
+            messageExecutor.sendMessage(messageDTO.getChatId(), reminderText, messageDTO.getReplyMessageId());
         }
-        messageExecutor.sendMessage(messageDTO.getChatId(), reminderText, messageDTO.getReplyMessageId());
     }
 
     public void playReminder() {
