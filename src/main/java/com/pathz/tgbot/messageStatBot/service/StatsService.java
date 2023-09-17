@@ -31,20 +31,15 @@ import static com.pathz.tgbot.messageStatBot.util.enums.BotCommands.values;
 @Service
 public class StatsService implements CommandExecutable {
 
-    @Value("${telegram.bot.username}")
-    private String botUsername;
-
     private final LogRepo logRepo;
-    private final SettingsRepo settingsRepo;
     private final MessageExecutor messageExecutor;
 
     private final SettingsService settingsService;
 
     public StatsService(
-            LogRepo logRepo, SettingsRepo settingsRepo, MessageExecutor messageExecutor, SettingsService settingsService
+            LogRepo logRepo, MessageExecutor messageExecutor, SettingsService settingsService
     ) {
         this.logRepo = logRepo;
-        this.settingsRepo = settingsRepo;
         this.messageExecutor = messageExecutor;
         this.settingsService = settingsService;
     }
@@ -104,19 +99,8 @@ public class StatsService implements CommandExecutable {
         List<StatsViewDto> top = getTopChattyWeek(chatId);
         StringBuilder text = new StringBuilder();
         text.append("Статистика за эту неделю\n");
-        List<MessageEntity> messageEntities = getMessageEntities2(top, chatId, text);
+        List<MessageEntity> messageEntities = getMessageEntities(top, chatId, text);
         sendMessage(chatId, messageEntities, text.toString());
-    }
-
-    private List<MessageEntity> getMessageEntities2(List<StatsViewDto> top, Long chatId, StringBuilder text) {
-        ArrayList<MessageEntity> messageEntities = new ArrayList<>();
-        top.forEach(stats -> {
-            User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
-            String firstName = Objects.nonNull(user) ? user.getFirstName() : "deleted";
-            String lastName = Objects.nonNull(user) ? user.getLastName() : "deleted";
-            messageEntities.add(getMessageEntity(text, stats.getCount(), user, firstName, lastName));
-        });
-        return messageEntities;
     }
 
     private List<MessageEntity> getMessageEntities(List<StatsViewDto> top, Long chatId, StringBuilder text) {

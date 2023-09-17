@@ -22,9 +22,7 @@ public class StinkyService implements CommandExecutable {
     private final StinkyRepo stinkyRepo;
     private final LogRepo logRepo;
     private final StatsService statsService;
-
     private final SettingsService settingsService;
-
     private final MessageExecutor messageExecutor;
 
     public StinkyService(StinkyRepo stinkyRepo, LogRepo logRepo, StatsService statsService, SettingsService settingsService, MessageExecutor messageExecutor) {
@@ -48,12 +46,6 @@ public class StinkyService implements CommandExecutable {
     }
 
     public String getStinky(String chatId) {
-        List<String> distinctUserIdByChatId = logRepo.findDistinctUserIdByChatId(chatId);
-        int i = (int) (Math.random() * distinctUserIdByChatId.size());
-        return distinctUserIdByChatId.get(i);
-    }
-
-    public String getStinky(String chatId, String userId) {
         List<String> distinctUserIdByChatId = logRepo.findDistinctUserIdByChatId(chatId);
         int i = (int) (Math.random() * distinctUserIdByChatId.size());
         return distinctUserIdByChatId.get(i);
