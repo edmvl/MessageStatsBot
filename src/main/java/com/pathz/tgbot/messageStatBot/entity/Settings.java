@@ -21,9 +21,6 @@ public class Settings {
     @Column(name = "user_id")
     String userId;
 
-    @Column(name = "skip_stats")
-    Boolean skipStats;
-
     @Column(name = "is_admin")
     Boolean isAdmin;
 
@@ -33,7 +30,6 @@ public class Settings {
                 "id=" + id +
                 ", chatId ='" + chatId + '\'' +
                 ", userId='" + userId + '\'' +
-                ", skipStats=" + skipStats +
                 ", isAdmin=" + isAdmin +
                 '}';
     }

@@ -142,14 +142,6 @@ public class StatsService implements CommandExecutable {
         messageExecutor.sendMessage(sendMessage);
     }
 
-    private void sendReply(Long chatId, String text, Integer messId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(text);
-        sendMessage.setReplyToMessageId(messId);
-        messageExecutor.sendMessage(sendMessage);
-    }
-
     private static MessageEntity getMessageEntity(
             StringBuilder text, Integer count, User user, String firstName, String lastName
     ) {
@@ -205,22 +197,6 @@ public class StatsService implements CommandExecutable {
         messageExecutor.deleteMessage(chatId, messageId);
     }
 
-    public void skipStats(Long chatId, Long userId, Integer messageId) {
-        Settings settings = settingsRepo.findByChatIdAndUserId(chatId.toString(), userId.toString());
-        if (Objects.isNull(settings) || !Boolean.TRUE.equals(settings.getIsAdmin())) {
-            settings = new Settings();
-            settings.setChatId(String.valueOf(chatId));
-            settings.setUserId(String.valueOf(userId));
-            settings.setSkipStats(false);
-            settingsRepo.save(settings);
-            sendReply(chatId, "Доступно только администратору бота", messageId);
-            return;
-        }
-        settings.setSkipStats(true);
-        settingsRepo.save(settings);
-        sendReply(chatId, "Вы добавлены в спиок игнора статистики", messageId);
-    }
-
     public void sendStats(Long chatId, Integer messageId, String date) {
         LocalDate dt = Objects.isNull(date) ? LocalDate.now() : LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         sendStats(chatId, messageId, dt);
@@ -240,9 +216,6 @@ public class StatsService implements CommandExecutable {
         }
         if (messageDTO.getUserText().startsWith(BotCommands.GET_CHATTY_DAYS.getCommand())) {
             sendChattyDays(messageDTO.getChatId(), messageDTO.getMessageId());
-        }
-        if (messageDTO.getUserText().startsWith(BotCommands.SKIP_STATS.getCommand())) {
-            skipStats(messageDTO.getChatId(), messageDTO.getUserId(), messageDTO.getMessageId());
         }
     }
 }

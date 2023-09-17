@@ -12,17 +12,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class StatsDto {
-
     String chatId;
     String userId;
-
     LocalDate date;
     int count;
-
     String login;
-
     String name;
-
     @Override
     public String toString() {
         return chatId + "," + userId + ": " + count;

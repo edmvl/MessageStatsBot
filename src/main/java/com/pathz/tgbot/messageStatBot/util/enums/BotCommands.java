@@ -8,7 +8,6 @@ public enum BotCommands {
     GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе"),
     GET_STATS_ALL("/stat", "вся статистика"),
     GET_WEEK_STATS("/week", "статистика за неделю"),
-    SKIP_STATS("/skipstats", "не учитывать в статистике", true),
     ADD_WORD("/addword", "добавить слово в список удаляемых", true),
     CHANGED_USERS("/history", "История изменений никнеймов пользователей", true),
     HOLIDAYS("/holidays", "Праздники сегодня"),
