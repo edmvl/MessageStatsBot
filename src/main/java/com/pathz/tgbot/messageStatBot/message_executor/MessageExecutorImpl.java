@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -18,38 +19,40 @@ public class MessageExecutorImpl implements MessageExecutor {
     private MyTelegramBot tgBot;
 
     @Override
-    public void sendMessage(SendMessage sendMessage) {
+    public Integer sendMessage(SendMessage sendMessage) {
         try {
-            tgBot.execute(sendMessage);
+            Message execute = tgBot.execute(sendMessage);
+            return execute.getMessageId();
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     @Override
-    public void sendMessage(String chatId, String text, Integer replyMessageId) {
+    public Integer sendMessage(String chatId, String text, Integer replyMessageId) {
         SendMessage sendMessage = new SendMessage();
         if (Objects.nonNull(replyMessageId)) {
             sendMessage.setReplyToMessageId(replyMessageId);
         }
         sendMessage.setChatId(chatId);
         sendMessage.setText(text);
-        sendMessage(sendMessage);
+        return sendMessage(sendMessage);
     }
 
     @Override
-    public void sendMessage(Long chatId, String text, Integer replyMessageId) {
-        sendMessage(String.valueOf(chatId), text, replyMessageId);
+    public Integer sendMessage(Long chatId, String text, Integer replyMessageId) {
+        return sendMessage(String.valueOf(chatId), text, replyMessageId);
     }
 
     @Override
-    public void sendMessage(String chatId, String text) {
-        sendMessage(chatId, text, null);
+    public Integer sendMessage(String chatId, String text) {
+        return sendMessage(chatId, text, null);
     }
 
     @Override
-    public void sendMessage(Long chatId, String text) {
-        sendMessage(String.valueOf(chatId), text, null);
+    public Integer sendMessage(Long chatId, String text) {
+        return sendMessage(String.valueOf(chatId), text, null);
     }
 
     @Override

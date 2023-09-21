@@ -16,6 +16,7 @@ public enum BotCommands {
     CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш"),
     TRIP("/trip", "Создать поездку"),
     REMINDER("/rem", "Создать напоминание"),
+    QUIZ("/quiz", "Создать напоминание"),
     ;
 
     public String getCommand() {

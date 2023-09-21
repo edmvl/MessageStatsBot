@@ -30,18 +30,20 @@ public class MessageHandler implements Handler<Message> {
     private final Logger logger = Logger.getLogger("MessageHandler");
 
     private final List<CommandExecutable> commandExecutables;
+    private final List<AnswerCheckable> answerCheckables;
     @Value("${telegram.bot.username}")
     private String botUsername;
 
     @Lazy
     public MessageHandler(MessageExecutor messageExecutor, StatsService service, LogService logService,
-                          WordsFilterService wordsFilterService, List<CommandExecutable> commandExecutables)
+                          WordsFilterService wordsFilterService, List<CommandExecutable> commandExecutables, List<AnswerCheckable> answerCheckables)
     {
         this.messageExecutor = messageExecutor;
         this.statsService = service;
         this.logService = logService;
         this.wordsFilterService = wordsFilterService;
         this.commandExecutables = commandExecutables;
+        this.answerCheckables = answerCheckables;
     }
 
     @Override
@@ -74,6 +76,7 @@ public class MessageHandler implements Handler<Message> {
         if (getAllBotCommands().stream().anyMatch(s -> messageDTO.getUserText().toLowerCase(Locale.ROOT).startsWith(s.toLowerCase()))) {
             commandExecutables.forEach(service -> service.executeCommand(messageDTO));
         }
+        answerCheckables.forEach(service -> service.checkAnswer(messageDTO));
     }
 
     private List<String> getAllBotCommands() {
