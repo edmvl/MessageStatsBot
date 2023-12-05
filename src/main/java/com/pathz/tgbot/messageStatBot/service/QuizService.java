@@ -44,6 +44,9 @@ public class QuizService implements CommandExecutable, AnswerCheckable {
 
     private void checkAsk(Long chatId, Integer messageId, Integer replyMessageId, Long userId, String text) {
         QuizChatDto lastQuizForChat = quizRepo.findLastQuizForChat(String.valueOf(chatId));
+        if (Objects.isNull(lastQuizForChat)) {
+            return;
+        }
         Long id = lastQuizForChat.getId();
         if (Objects.isNull(id)) {
             return;
