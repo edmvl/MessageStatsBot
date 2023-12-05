@@ -29,6 +29,6 @@ public enum InlineCommand {
 
     public String getPrevStep() {
         List<String> inlineCommands = Arrays.stream(values()).map(InlineCommand::getCommand).toList();
-        return TRIP_CONFIRM.getCommand().equals(command) ? "" : inlineCommands.get(inlineCommands.indexOf(command) - 1);
+        return inlineCommands.get(inlineCommands.indexOf(command) - 1);
     }
 }

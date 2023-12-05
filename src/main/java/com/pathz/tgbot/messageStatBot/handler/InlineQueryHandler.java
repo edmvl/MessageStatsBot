@@ -42,6 +42,9 @@ public class InlineQueryHandler implements Handler<CallbackQuery> {
         if (InlineCommand.SELECT_TRIP_SEAT.getCommand().equals(command)) {
             tripService.updateSeat(id, data);
         }
+        if (InlineCommand.TRIP_CONFIRM.getCommand().equals(command)) {
+            tripService.publishTrip(id, data);
+        }
         //----------Trip Flow----------
         if (InlineCommand.SELECT_TRIP_DATE.getPrevStep().equals(command)) {
             tripService.selectDate(chatId, id);
@@ -53,7 +56,7 @@ public class InlineQueryHandler implements Handler<CallbackQuery> {
             tripService.selectSeats(chatId, id);
         }
         if (InlineCommand.TRIP_CONFIRM.getPrevStep().equals(command)) {
-            tripService.publishTrip(chatId, id);
+            tripService.confirmTripParams(chatId, id);
         }
         messageExecutor.deleteMessage(chatId, messageId);
         System.out.println(callbackQuery);

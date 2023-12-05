@@ -15,10 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -54,17 +51,37 @@ public class TripService implements CommandExecutable {
 
     }
 
-    public void publishTrip(Long tripId, String id) {
+    public void confirmTripParams(Long chatId, String id) {
+        Long tripId = Long.valueOf(id);
         Optional<Trip> tripOptional = tripRepo.findById(tripId);
+        if (tripOptional.isEmpty()) {
+            throw new RuntimeException("Trip not found by id");
+        }
+        StringBuilder mess = new StringBuilder();
+        Trip trip = tripOptional.get();
+        mess.append("Параметры поездки\n");
+        mess.append("Направление: ").append(trip.getStartFrom()).append("-").append(trip.getDestination()).append("\n");
+        mess.append("Время: ").append(trip.getDateTime()).append("\n");
+        mess.append("Свободных мест: ").append(trip.getSeat()).append("\n");
+        mess.append("Подтвердить");
+        sendInlineKeyboard(chatId, mess.toString(), getTripConfirmButtons(id));
+    }
+
+    public void publishTrip(String id, String data) {
+        Optional<Trip> tripOptional = tripRepo.findById(Long.valueOf(id));
         if (tripOptional.isEmpty()) {
             throw new RuntimeException("Trip not found by id");
         }
         Trip trip = tripOptional.get();
         trip.setPublished(true);
         tripRepo.save(trip);
-        LocalDateTime dateTime = trip.getDateTime();
+        notifySubscribers(trip.getDateTime());
+    }
+
+    private void notifySubscribers(LocalDateTime dateTime) {
+        LocalDateTime tripDateTime = Objects.isNull(dateTime) ? LocalDateTime.now() : dateTime;
         List<Booking> bookingForInform = bookingRepo.findAllByDateTimeBetweenAndAccepted(
-                dateTime.minusHours(2), dateTime.plusHours(2), false
+                tripDateTime.minusHours(2), tripDateTime.plusHours(2), false
         );
         bookingForInform.stream().map(Booking::getUserId).forEach(u -> {
             SendMessage message = new SendMessage();
@@ -98,6 +115,13 @@ public class TripService implements CommandExecutable {
         return List.of(
                 getInlineKeyboardButton("Сегодня", SELECT_TRIP_DATE.getCommand() + ";" + "today" + ";" + id),
                 getInlineKeyboardButton("Завтра", SELECT_TRIP_DATE.getCommand() + ";" + "tomorrow" + ";" + id)
+        );
+    }
+
+    private List<InlineKeyboardButton> getTripConfirmButtons(String id) {
+        return List.of(
+                getInlineKeyboardButton("Да", TRIP_CONFIRM.getCommand() + ";" + "yes" + ";" + id),
+                getInlineKeyboardButton("Нет", TRIP_CONFIRM.getCommand() + ";" + "no" + ";" + id)
         );
     }
 
@@ -208,6 +232,7 @@ public class TripService implements CommandExecutable {
             tripRepo.save(trip);
         }
     }
+
     @Override
     public void executeCommand(MessageDTO messageDTO) {
         if (messageDTO.getUserText().startsWith(BotCommands.TRIP.getCommand())) {
