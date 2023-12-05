@@ -4,11 +4,8 @@ import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Log;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.LogRepo;
-import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

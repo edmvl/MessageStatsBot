@@ -6,11 +6,9 @@ import com.pathz.tgbot.messageStatBot.entity.ChallengeReg;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.ChallengeRegRepo;
 import com.pathz.tgbot.messageStatBot.repo.ChallengeRepo;
-import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 

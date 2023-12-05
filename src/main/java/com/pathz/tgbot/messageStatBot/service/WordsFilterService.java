@@ -34,7 +34,7 @@ public class WordsFilterService implements CommandExecutable {
         if (Objects.isNull(messageDTO.getUserText())) {
             return;
         }
-        List<String> words = Arrays.stream(messageDTO.getUserText().split(" ")).toList();
+        List<String> words = Arrays.stream(messageDTO.getUserText().split(" ")).map(String::toLowerCase).toList();
         List<String> wordsToFilter = wordsFilterRepo.findAll().stream().map(WordsFilter::getWord).map(String::toLowerCase).toList();
         if (wordsToFilter.stream().anyMatch(s -> words.stream().anyMatch(s.toLowerCase()::equals))) {
             messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
