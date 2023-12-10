@@ -63,7 +63,7 @@ public class TripService implements CommandExecutable {
         mess.append("Направление: ").append(trip.getStartFrom()).append("-").append(trip.getDestination()).append("\n");
         mess.append("Время: ").append(trip.getDateTime()).append("\n");
         mess.append("Свободных мест: ").append(trip.getSeat()).append("\n");
-        mess.append("Подтвердить");
+        mess.append("Подтвердить?");
         sendInlineKeyboard(chatId, mess.toString(), getTripConfirmButtons(id));
     }
 
@@ -71,6 +71,9 @@ public class TripService implements CommandExecutable {
         Optional<Trip> tripOptional = tripRepo.findById(Long.valueOf(id));
         if (tripOptional.isEmpty()) {
             throw new RuntimeException("Trip not found by id");
+        }
+        if (!"yes".equals(data)){
+            return;
         }
         Trip trip = tripOptional.get();
         trip.setPublished(true);
