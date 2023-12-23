@@ -6,6 +6,7 @@ import com.pathz.tgbot.messageStatBot.entity.Trip;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.BookingRepo;
 import com.pathz.tgbot.messageStatBot.repo.TripRepo;
+import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
@@ -33,9 +34,24 @@ public class TripService implements CommandExecutable {
         this.bookingRepo = bookingRepo;
     }
 
-    public void showNearestTrip() {
-
+    public void findNearestTrip(Long chatId) {
+        sendInlineKeyboard(chatId, "Ближайшие поездки:", getTripListButtons(), 1);
     }
+
+    private List<InlineKeyboardButton> getTripListButtons() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Trip> allByDateTimeBetweenAndPublished = tripRepo.findAllByDateTimeBetweenAndPublishedOrderByDateTimeAsc(now.withHour(0), now.plusHours(24), true);
+        return allByDateTimeBetweenAndPublished.stream()
+                .map(trip -> getInlineKeyboardButton(
+                        trip.getStartFrom() + " - " + trip.getDestination() + "\n" +
+                                MessageFormatter.formatTripDate(trip.getDateTime()) + "\n" +
+                                MessageFormatter.formatTripTime(trip.getDateTime()) + "\n" +
+                                "мест: " + trip.getSeat(),
+                        REGISTER_TO_TRIP.getCommand() + ";" + " " + ";" + trip.getId())
+                )
+                .collect(Collectors.toList());
+    }
+
 
     public void registerToTrip(Long tripId, String userId, String startFrom, String destination, int seat) {
         Booking booking = new Booking();
@@ -60,11 +76,12 @@ public class TripService implements CommandExecutable {
         StringBuilder mess = new StringBuilder();
         Trip trip = tripOptional.get();
         mess.append("Параметры поездки\n");
-        mess.append("Направление: ").append(trip.getStartFrom()).append("-").append(trip.getDestination()).append("\n");
-        mess.append("Время: ").append(trip.getDateTime()).append("\n");
-        mess.append("Свободных мест: ").append(trip.getSeat()).append("\n");
+        mess.append("\uD83D\uDEE3 ").append(trip.getStartFrom()).append("-").append(trip.getDestination()).append("\n");
+        mess.append("\uD83D\uDCC5 Дата: ").append(MessageFormatter.formatTripDate(trip.getDateTime())).append("\n");
+        mess.append("⌚ Время: ").append(MessageFormatter.formatTripTime(trip.getDateTime())).append("\n");
+        mess.append("✅ Свободных мест: ").append(trip.getSeat()).append("\n");
         mess.append("Подтвердить?");
-        sendInlineKeyboard(chatId, mess.toString(), getTripConfirmButtons(id));
+        sendInlineKeyboard(chatId, mess.toString(), getTripConfirmButtons(id), 6);
     }
 
     public void publishTrip(String id, String data) {
@@ -72,7 +89,7 @@ public class TripService implements CommandExecutable {
         if (tripOptional.isEmpty()) {
             throw new RuntimeException("Trip not found by id");
         }
-        if (!"yes".equals(data)){
+        if (!"yes".equals(data)) {
             return;
         }
         Trip trip = tripOptional.get();
@@ -94,50 +111,50 @@ public class TripService implements CommandExecutable {
         });
     }
 
-    public void selectDirection(Long chatId) {
-        selectDirection(chatId, null);
+    public void selectTripDirection(Long chatId) {
+        selectTripDirection(chatId, null);
     }
 
-    public void selectDirection(Long chatId, Long tripId) {
-        sendInlineKeyboard(chatId, "Выберите направление поездки", getTripDirectionButtons(tripId));
+    public void selectTripDirection(Long chatId, Long tripId) {
+        sendInlineKeyboard(chatId, "Выберите направление поездки", getTripDirectionButtons(tripId), 6);
     }
 
-    public void selectDate(Long chatId, String id) {
-        sendInlineKeyboard(chatId, "Выберите дату поездки", getTripDateButtons(id));
+    public void selectDate(Long chatId, String tripId) {
+        sendInlineKeyboard(chatId, "Выберите дату поездки", getTripDateButtons(tripId), 6);
     }
 
-    public void selectTime(Long chatId, String id) {
-        sendInlineKeyboard(chatId, "Выберите время поездки", getTripTimeButtons(id));
+    public void selectTime(Long chatId, String tripId) {
+        sendInlineKeyboard(chatId, "Выберите время поездки", getTripTimeButtons(tripId), 6);
     }
 
-    public void selectSeats(Long chatId, String id) {
-        sendInlineKeyboard(chatId, "Выберите количкство свободных мест", getTripSeatsButtons(id));
+    public void selectSeats(Long chatId, String tripId) {
+        sendInlineKeyboard(chatId, "Выберите количкство свободных мест", getTripSeatsButtons(tripId), 6);
     }
 
-    private List<InlineKeyboardButton> getTripDateButtons(String id) {
+    private List<InlineKeyboardButton> getTripDateButtons(String tripId) {
         return List.of(
-                getInlineKeyboardButton("Сегодня", SELECT_TRIP_DATE.getCommand() + ";" + "today" + ";" + id),
-                getInlineKeyboardButton("Завтра", SELECT_TRIP_DATE.getCommand() + ";" + "tomorrow" + ";" + id)
+                getInlineKeyboardButton("Сегодня", SELECT_TRIP_DATE.getCommand() + ";" + "today" + ";" + tripId),
+                getInlineKeyboardButton("Завтра", SELECT_TRIP_DATE.getCommand() + ";" + "tomorrow" + ";" + tripId)
         );
     }
 
-    private List<InlineKeyboardButton> getTripConfirmButtons(String id) {
+    private List<InlineKeyboardButton> getTripConfirmButtons(String tripId) {
         return List.of(
-                getInlineKeyboardButton("Да", TRIP_CONFIRM.getCommand() + ";" + "yes" + ";" + id),
-                getInlineKeyboardButton("Нет", TRIP_CONFIRM.getCommand() + ";" + "no" + ";" + id)
+                getInlineKeyboardButton("Да", TRIP_CONFIRM.getCommand() + ";" + "yes" + ";" + tripId),
+                getInlineKeyboardButton("Нет", TRIP_CONFIRM.getCommand() + ";" + "no" + ";" + tripId)
         );
     }
 
-    private List<InlineKeyboardButton> getTripTimeButtons(String id) {
+    private List<InlineKeyboardButton> getTripTimeButtons(String tripId) {
         List<InlineKeyboardButton> result = new ArrayList<>();
         LocalDate tomorrow = LocalDate.now().plusDays(1);
-        var ticker = isTripToday(id) ? LocalDateTime.now().plusHours(2).withMinute(0) : LocalDate.now().atStartOfDay();
+        var ticker = isTripToday(tripId) ? LocalDateTime.now().plusHours(2).withMinute(0) : LocalDate.now().atStartOfDay();
         while (ticker.isBefore(tomorrow.atStartOfDay())) {
             String text = ticker.getHour() + ":" + ticker.getMinute();
             result.add(
                     getInlineKeyboardButton(
                             text,
-                            SELECT_TRIP_TIME.getCommand() + ";" + text + ";" + id
+                            SELECT_TRIP_TIME.getCommand() + ";" + text + ";" + tripId
                     )
             );
             ticker = ticker.plusMinutes(30);
@@ -145,22 +162,22 @@ public class TripService implements CommandExecutable {
         return result;
     }
 
-    private boolean isTripToday(String id) {
-        Optional<Trip> byId = tripRepo.findById(Long.valueOf(id));
+    private boolean isTripToday(String tripId) {
+        Optional<Trip> byId = tripRepo.findById(Long.valueOf(tripId));
         return byId.filter(trip -> !LocalDate.now().isBefore(LocalDate.from(trip.getDateTime()))).isPresent();
     }
 
-    private List<InlineKeyboardButton> getTripSeatsButtons(String id) {
+    private List<InlineKeyboardButton> getTripSeatsButtons(String tripId) {
         List<InlineKeyboardButton> result = new ArrayList<>();
         for (int i = 1; i <= 6; i++) {
-            result.add(getInlineKeyboardButton(String.valueOf(i), SELECT_TRIP_SEAT.getCommand() + ";" + i + ";" + id));
+            result.add(getInlineKeyboardButton(String.valueOf(i), SELECT_TRIP_SEAT.getCommand() + ";" + i + ";" + tripId));
         }
         return result;
     }
 
-    private void sendInlineKeyboard(Long chatId, String text, List<InlineKeyboardButton> tripListButtons) {
+    private void sendInlineKeyboard(Long chatId, String text, List<InlineKeyboardButton> tripListButtons, int chunkSize) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(prepareChunks(tripListButtons));
+        inlineKeyboardMarkup.setKeyboard(prepareChunks(tripListButtons, chunkSize));
         SendMessage message = new SendMessage();
         message.setReplyMarkup(inlineKeyboardMarkup);
         message.setChatId(chatId);
@@ -186,9 +203,9 @@ public class TripService implements CommandExecutable {
         return inlineKeyboardButton;
     }
 
-    private <T> List<List<T>> prepareChunks(List<T> inputList) {
+    private <T> List<List<T>> prepareChunks(List<T> inputList, int chunkSize) {
         AtomicInteger counter = new AtomicInteger();
-        return inputList.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 6)).values().stream().toList();
+        return inputList.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / chunkSize)).values().stream().toList();
     }
 
     public String createTrip(Long userId, String direction) {
@@ -201,8 +218,8 @@ public class TripService implements CommandExecutable {
         return save.getId().toString();
     }
 
-    public void updateDate(String id, String data) {
-        Optional<Trip> byId = tripRepo.findById(Long.valueOf(id));
+    public void updateDate(String tripId, String data) {
+        Optional<Trip> byId = tripRepo.findById(Long.valueOf(tripId));
         if (byId.isPresent()) {
             LocalDate date = LocalDate.now();
             Trip trip = byId.get();
@@ -220,8 +237,7 @@ public class TripService implements CommandExecutable {
             Trip trip = byId.get();
             LocalDateTime date = trip.getDateTime();
             String[] split = data.split(":");
-            date = date.withHour(Integer.parseInt(split[0]));
-            date = date.withMinute(Integer.parseInt(split[1]));
+            date = date.withHour(Integer.parseInt(split[0])).withMinute(Integer.parseInt(split[1]));
             trip.setDateTime(date);
             tripRepo.save(trip);
         }
@@ -238,9 +254,13 @@ public class TripService implements CommandExecutable {
 
     @Override
     public void executeCommand(MessageDTO messageDTO) {
-        if (messageDTO.getUserText().startsWith(BotCommands.TRIP.getCommand())) {
+        if (messageDTO.getUserText().equals(BotCommands.TRIP.getCommand())) {
             messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
-            selectDirection(messageDTO.getChatId());
+            selectTripDirection(messageDTO.getChatId());
+        }
+        if (messageDTO.getUserText().equals(BotCommands.FIND_NEAREST_TRIP.getCommand())) {
+            messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
+            findNearestTrip(messageDTO.getChatId());
         }
     }
 }

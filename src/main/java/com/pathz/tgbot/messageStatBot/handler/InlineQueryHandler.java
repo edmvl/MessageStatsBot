@@ -27,38 +27,53 @@ public class InlineQueryHandler implements Handler<CallbackQuery> {
         String[] split = callbackQueryData.split(";");
         String command = split[0];
         String data = split[1];
-        String id = split[2];
-
-        //-----------Trip Actions-------
-        if (InlineCommand.SELECT_TRIP_DIRECTION.getCommand().equals(command)) {
-            id = tripService.createTrip(userId, data);
-        }
-        if (InlineCommand.SELECT_TRIP_DATE.getCommand().equals(command)) {
-            tripService.updateDate(id, data);
-        }
-        if (InlineCommand.SELECT_TRIP_TIME.getCommand().equals(command)) {
-            tripService.updateTime(id, data);
-        }
-        if (InlineCommand.SELECT_TRIP_SEAT.getCommand().equals(command)) {
-            tripService.updateSeat(id, data);
-        }
-        if (InlineCommand.TRIP_CONFIRM.getCommand().equals(command)) {
-            tripService.publishTrip(id, data);
-        }
-        //----------Trip Flow----------
-        if (InlineCommand.SELECT_TRIP_DATE.getPrevStep().equals(command)) {
-            tripService.selectDate(chatId, id);
-        }
-        if (InlineCommand.SELECT_TRIP_TIME.getPrevStep().equals(command)) {
-            tripService.selectTime(chatId, id);
-        }
-        if (InlineCommand.SELECT_TRIP_SEAT.getPrevStep().equals(command)) {
-            tripService.selectSeats(chatId, id);
-        }
-        if (InlineCommand.TRIP_CONFIRM.getPrevStep().equals(command)) {
-            tripService.confirmTripParams(chatId, id);
-        }
+        String tripId = split[2];
+        tripId = executeTripAction(userId, chatId, command, data, tripId);
+        executeTripFlow(chatId, command, tripId);
         messageExecutor.deleteMessage(chatId, messageId);
         System.out.println(callbackQuery);
+    }
+
+    private String executeTripAction(Long userId, Long chatId, String command, String data, String tripId) {
+        if (InlineCommand.TRIP.getCommand().equals(command)) {
+            tripService.selectTripDirection(chatId);
+        }
+        if (InlineCommand.SELECT_TRIP_DIRECTION.getCommand().equals(command)) {
+            tripId = tripService.createTrip(userId, data);
+        }
+        if (InlineCommand.SELECT_TRIP_DATE.getCommand().equals(command)) {
+            tripService.updateDate(tripId, data);
+        }
+        if (InlineCommand.SELECT_TRIP_TIME.getCommand().equals(command)) {
+            tripService.updateTime(tripId, data);
+        }
+        if (InlineCommand.SELECT_TRIP_SEAT.getCommand().equals(command)) {
+            tripService.updateSeat(tripId, data);
+        }
+        if (InlineCommand.TRIP_CONFIRM.getCommand().equals(command)) {
+            tripService.publishTrip(tripId, data);
+        }
+        if (InlineCommand.FIND_NEAREST_TRIP.getCommand().equals(command)) {
+            tripService.findNearestTrip(chatId);
+        }
+        if (InlineCommand.FIND_NEAREST_TRIP.getCommand().equals(command)) {
+            tripService.findNearestTrip(chatId);
+        }
+        return tripId;
+    }
+
+    private void executeTripFlow(Long chatId, String command, String tripId) {
+        if (InlineCommand.SELECT_TRIP_DATE.getPrevStep().equals(command)) {
+            tripService.selectDate(chatId, tripId);
+        }
+        if (InlineCommand.SELECT_TRIP_TIME.getPrevStep().equals(command)) {
+            tripService.selectTime(chatId, tripId);
+        }
+        if (InlineCommand.SELECT_TRIP_SEAT.getPrevStep().equals(command)) {
+            tripService.selectSeats(chatId, tripId);
+        }
+        if (InlineCommand.TRIP_CONFIRM.getPrevStep().equals(command)) {
+            tripService.confirmTripParams(chatId, tripId);
+        }
     }
 }

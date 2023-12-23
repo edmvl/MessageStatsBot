@@ -17,6 +17,7 @@ public enum BotCommands {
     TRIP("/trip", "Создать поездку"),
     REMINDER("/rem", "Создать напоминание"),
     QUIZ("/quiz", "Создать напоминание"),
+    FIND_NEAREST_TRIP("/triplist", "Найти ближайшие поездки"),
     ;
 
     public String getCommand() {

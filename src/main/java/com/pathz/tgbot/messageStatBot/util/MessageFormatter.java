@@ -5,6 +5,10 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -55,5 +59,13 @@ public class MessageFormatter {
         }
     }
 
+    public static String formatTripDate(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy").withZone(ZoneOffset.UTC);
+        return formatter.format(dateTime.toInstant(ZoneOffset.UTC));
+    }
 
+    public static String formatTripTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneOffset.UTC);
+        return formatter.format(dateTime.toInstant(ZoneOffset.UTC));
+    }
 }
