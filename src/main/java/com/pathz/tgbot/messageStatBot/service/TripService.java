@@ -114,9 +114,9 @@ public class TripService implements CommandExecutable {
                 "Связь: ";
         message.setChatId(tripChannelId);
         String userId = trip.getUserId();
-        User user = messageExecutor.searchUsersInChat(userId, userId);
+        User user = new User(Long.valueOf(userId), "ЛС", false);
         MessageEntity messageEntity = new MessageEntity();
-        String userIdentity = user.getFirstName() + " " + user.getLastName();
+        String userIdentity = user.getFirstName();
         messageEntity.setOffset(mess.length());
         messageEntity.setType("text_mention");
         messageEntity.setLength(userIdentity.length());
