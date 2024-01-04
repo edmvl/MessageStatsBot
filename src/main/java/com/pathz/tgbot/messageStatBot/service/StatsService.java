@@ -103,10 +103,9 @@ public class StatsService implements CommandExecutable {
     private List<MessageEntity> getMessageEntities(List<StatsViewDto> top, Long chatId, StringBuilder text) {
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
-            User user = messageExecutor.searchUsersInChat(chatId.toString(), stats.getUserId());
-            String firstName = Objects.nonNull(user) ? user.getFirstName() : "deleted";
-            String lastName = Objects.nonNull(user) ? user.getLastName() : "deleted";
-            messageEntities.add(getMessageEntity(text, stats.getCount(), user, firstName, lastName));
+            String userNames = String.join(",", logRepo.findUserHistoryByChatId(stats.getChatId(), stats.getUserId()));
+            User user = new User(Long.valueOf(stats.getUserId()), userNames, false);
+            messageEntities.add(getMessageEntity(text, stats.getCount(), user, userNames));
         });
         return messageEntities;
     }
@@ -124,19 +123,15 @@ public class StatsService implements CommandExecutable {
     }
 
     private static MessageEntity getMessageEntity(
-            StringBuilder text, Integer count, User user, String firstName, String lastName
+            StringBuilder text, Integer count, User user, String userNames
     ) {
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setOffset(text.length());
-        String userIdentityText = firstName + " " + (Objects.nonNull(lastName) ? lastName : "") + "(" + count + ")" + "\n";
+        String userIdentityText = userNames + "(" + count + ")" + "\n";
         text.append(userIdentityText);
         messageEntity.setLength(userIdentityText.length());
-        if (Objects.nonNull(user)) {
-            messageEntity.setUser(user);
-            messageEntity.setType("text_mention");
-        } else {
-            messageEntity.setType("mention");
-        }
+        messageEntity.setUser(user);
+        messageEntity.setType("text_mention");
         return messageEntity;
     }
 
