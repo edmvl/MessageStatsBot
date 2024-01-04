@@ -29,6 +29,10 @@ public class SettingsService {
         return !isEnabled(chatId, name);
     }
 
+    public String findTripChannelId() {
+        return chatSettingsRepo.findFirstBySettingName(ChatSettingConstants.TRIP_CHANNEL.getDbValue()).getChatId();
+    }
+
     public boolean isUserAdmin(Long chatId, Long userId) {
         Settings settings = settingsRepo.findByChatIdAndUserId(String.valueOf(chatId), String.valueOf(userId));
         return Objects.nonNull(settings) && settings.getIsAdmin();

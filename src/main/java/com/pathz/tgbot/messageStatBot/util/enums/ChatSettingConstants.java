@@ -5,7 +5,9 @@ import lombok.Getter;
 public enum ChatSettingConstants {
     ENABLE_STINKY("enable_stinky"),
     ENABLE_HOLIDAYS("enable_holidays"),
-    ENABLE_STATS("enable_stats");
+    ENABLE_STATS("enable_stats"),
+    TRIP_CHANNEL("trip_channel"),
+    ;
 
 
     @Getter

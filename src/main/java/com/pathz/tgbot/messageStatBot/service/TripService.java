@@ -11,6 +11,8 @@ import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -28,10 +30,13 @@ public class TripService implements CommandExecutable {
     private final TripRepo tripRepo;
     private final BookingRepo bookingRepo;
 
-    public TripService(MessageExecutor messageExecutor, TripRepo tripRepo, BookingRepo bookingRepo) {
+    private final SettingsService settingsService;
+
+    public TripService(MessageExecutor messageExecutor, TripRepo tripRepo, BookingRepo bookingRepo, SettingsService settingsService) {
         this.messageExecutor = messageExecutor;
         this.tripRepo = tripRepo;
         this.bookingRepo = bookingRepo;
+        this.settingsService = settingsService;
     }
 
     public void findNearestTrip(Long chatId) {
@@ -95,20 +100,31 @@ public class TripService implements CommandExecutable {
         Trip trip = tripOptional.get();
         trip.setPublished(true);
         tripRepo.save(trip);
-        notifySubscribers(trip.getDateTime());
+        publishToChannel(trip);
     }
 
-    private void notifySubscribers(LocalDateTime dateTime) {
-        LocalDateTime tripDateTime = Objects.isNull(dateTime) ? LocalDateTime.now() : dateTime;
-        List<Booking> bookingForInform = bookingRepo.findAllByDateTimeBetweenAndAccepted(
-                tripDateTime.minusHours(2), tripDateTime.plusHours(2), false
-        );
-        bookingForInform.stream().map(Booking::getUserId).forEach(u -> {
-            SendMessage message = new SendMessage();
-            message.setText("Появились поездки на выбранную вами дату");
-            message.setChatId(u);
-            messageExecutor.sendMessage(message);
-        });
+    private void publishToChannel(Trip trip) {
+        String tripChannelId = settingsService.findTripChannelId();
+        SendMessage message = new SendMessage();
+        String mess = "#Попутка_" + trip.getStartFrom() + "_" + trip.getDestination() + "\n" +
+                "\uD83D\uDEE3 " + trip.getStartFrom() + "-" + trip.getDestination() + "\n" +
+                "\uD83D\uDCC5 Дата: " + MessageFormatter.formatTripDate(trip.getDateTime()) + "\n" +
+                "⌚ Время: " + MessageFormatter.formatTripTime(trip.getDateTime()) + "\n" +
+                "✅ Свободных мест: " + trip.getSeat() + "\n" +
+                "Связь: ";
+        message.setChatId(tripChannelId);
+        String userId = trip.getUserId();
+        User user = messageExecutor.searchUsersInChat(userId, userId);
+        MessageEntity messageEntity = new MessageEntity();
+        String userIdentity = user.getFirstName() + " " + user.getLastName();
+        messageEntity.setOffset(mess.length());
+        messageEntity.setType("text_mention");
+        messageEntity.setLength(userIdentity.length());
+        messageEntity.setUser(user);
+        mess = mess + userIdentity;
+        message.setText(mess);
+        message.setEntities(List.of(messageEntity));
+        messageExecutor.sendMessage(message);
     }
 
     public void selectTripDirection(Long chatId) {
