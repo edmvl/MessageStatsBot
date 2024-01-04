@@ -6,6 +6,7 @@ import com.pathz.tgbot.messageStatBot.entity.ChallengeReg;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.ChallengeRegRepo;
 import com.pathz.tgbot.messageStatBot.repo.ChallengeRepo;
+import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -21,11 +22,13 @@ public class ChallengeService implements CommandExecutable {
 
     private final ChallengeRepo challengeRepo;
     private final ChallengeRegRepo challengeRegRepo;
+    private final LogRepo logRepo;
     private final MessageExecutor messageExecutor;
 
-    public ChallengeService(ChallengeRepo challengeRepo, ChallengeRegRepo challengeRegRepo, MessageExecutor messageExecutor) {
+    public ChallengeService(ChallengeRepo challengeRepo, ChallengeRegRepo challengeRegRepo, LogRepo logRepo, MessageExecutor messageExecutor) {
         this.challengeRepo = challengeRepo;
         this.challengeRegRepo = challengeRegRepo;
+        this.logRepo = logRepo;
         this.messageExecutor = messageExecutor;
     }
 
@@ -84,7 +87,8 @@ public class ChallengeService implements CommandExecutable {
         }
         int random = (int) (Math.random() * regs.size()) - 1;
         ChallengeReg challengeReg = regs.get(random);
-        User user = messageExecutor.searchUsersInChat(chatId, challengeReg.getUserId());
+        String userNames = String.join(",", logRepo.findLastUserNameByChatId(chatId, challengeReg.getUserId()));
+        User user = new User(Long.valueOf(challengeReg.getUserId()), userNames, false);
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
         SendMessage sendMessage = new SendMessage();

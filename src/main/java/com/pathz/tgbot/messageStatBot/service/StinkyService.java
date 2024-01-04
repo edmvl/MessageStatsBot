@@ -74,26 +74,19 @@ public class StinkyService implements CommandExecutable {
         Stinky existedStinky = findByMessage(chatId.toString(), LocalDate.now());
         SendMessage sendMessage = new SendMessage();
         String text;
-        User user = null;
+        User user;
         String stinkyUserId;
         if (Objects.nonNull(existedStinky)) {
             text = "Паянхи шăршлă кута тупнă:\n";
             stinkyUserId = existedStinky.getUserId();
-            user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
+            String userNames = String.join(",", logRepo.findLastUserNameByChatId(chatId.toString(), stinkyUserId));
+            user = new User(Long.valueOf(stinkyUserId), userNames, false);
         } else {
-            stinkyUserId = getStinky(chatId.toString());
             text = "Кунăн кучĕ питĕ шăршлă:\n";
-            int counter = 0;
-            while (Objects.isNull(user) && counter < 10) {
-                System.out.println("try to get stinky " + (counter + 1));
-                stinkyUserId = getStinky(chatId.toString());
-                user = messageExecutor.searchUsersInChat(chatId.toString(), stinkyUserId);
-                counter++;
-            }
+            stinkyUserId = getStinky(chatId.toString());
+            String userNames = String.join(",", logRepo.findLastUserNameByChatId(chatId.toString(), stinkyUserId));
+            user = new User(Long.valueOf(stinkyUserId), userNames, false);
             save(chatId.toString(), stinkyUserId, LocalDate.now());
-        }
-        if (Objects.isNull(user)) {
-            return;
         }
         String firstName = user.getFirstName();
         String lastName = user.getLastName();

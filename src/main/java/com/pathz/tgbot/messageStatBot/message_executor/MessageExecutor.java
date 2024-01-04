@@ -15,8 +15,6 @@ public interface MessageExecutor {
 
     Integer sendMessage(Long chatId, String text, Integer replyMessageId);
 
-    User searchUsersInChat(String chatId, String userId);
-
     void deleteMessage(Long chatId, Integer messageId);
 
 }

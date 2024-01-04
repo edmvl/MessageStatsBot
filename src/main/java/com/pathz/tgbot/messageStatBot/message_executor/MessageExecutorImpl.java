@@ -56,19 +56,6 @@ public class MessageExecutorImpl implements MessageExecutor {
     }
 
     @Override
-    public User searchUsersInChat(String chatId, String userId) {
-        GetChatMember getChatMember = new GetChatMember();
-        getChatMember.setChatId(chatId);
-        getChatMember.setUserId(Long.valueOf(userId));
-        try {
-            ChatMember chatMember = tgBot.execute(getChatMember);
-            return Objects.nonNull(chatMember) ? chatMember.getUser() : null;
-        } catch (TelegramApiException e) {
-            return null;
-        }
-    }
-
-    @Override
     public void deleteMessage(Long chatId, Integer messageId) {
         DeleteMessage deleteMessage = new DeleteMessage();
         deleteMessage.setChatId(String.valueOf(chatId));

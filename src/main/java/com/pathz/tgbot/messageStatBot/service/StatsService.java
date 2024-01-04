@@ -103,7 +103,7 @@ public class StatsService implements CommandExecutable {
     private List<MessageEntity> getMessageEntities(List<StatsViewDto> top, Long chatId, StringBuilder text) {
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
         top.forEach(stats -> {
-            String userNames = String.join(",", logRepo.findUserHistoryByChatId(stats.getChatId(), stats.getUserId()));
+            String userNames = String.join(",", logRepo.findLastUserNameByChatId(stats.getChatId(), stats.getUserId()));
             User user = new User(Long.valueOf(stats.getUserId()), userNames, false);
             messageEntities.add(getMessageEntity(text, stats.getCount(), user, userNames));
         });
