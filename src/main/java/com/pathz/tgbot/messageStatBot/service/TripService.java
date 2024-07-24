@@ -43,6 +43,11 @@ public class TripService implements CommandExecutable {
         sendInlineKeyboard(chatId, "Ближайшие поездки:", getTripListButtons(), 1);
     }
 
+    public List<Trip> getTripList() {
+        LocalDateTime now = LocalDateTime.now();
+        return tripRepo.findAllByDateTimeBetweenAndPublishedOrderByDateTimeAsc(now.withHour(0), now.plusHours(24), true);
+    }
+
     private List<InlineKeyboardButton> getTripListButtons() {
         LocalDateTime now = LocalDateTime.now();
         List<Trip> allByDateTimeBetweenAndPublished = tripRepo.findAllByDateTimeBetweenAndPublishedOrderByDateTimeAsc(now.withHour(0), now.plusHours(24), true);

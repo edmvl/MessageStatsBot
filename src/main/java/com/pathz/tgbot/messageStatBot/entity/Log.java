@@ -33,13 +33,10 @@ public class Log {
     @Column(name = "text")
     String text;
 
-    @Column(name = "photo")
-    String photo;
+    @Column(name = "filetype")
+    String fileType;
 
-    @Column(name = "document")
-    String document;
-
-    @Column(name = "stiker")
-    String stiker;
+    @Column(name = "file")
+    String file;
 
 }

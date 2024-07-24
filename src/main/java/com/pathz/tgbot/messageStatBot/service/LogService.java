@@ -5,10 +5,12 @@ import com.pathz.tgbot.messageStatBot.entity.Log;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -27,9 +29,8 @@ public class LogService implements CommandExecutable {
 
     public void save(
             String chatId, String chatName, String userId, String userName, LocalDateTime dateTime,
-            String text, String photo, String documentId, String sticker
-    ) {
-        log.log(Level.INFO, chatName + " " + userName + " " + " " + text);
+            String text, Pair<String, String> file) {
+        log.log(Level.INFO, String.format("%s %s %s %s", chatName, userName, text, file));
         Log log = new Log();
         log.setChatId(chatId);
         log.setChatName(chatName);
@@ -37,9 +38,10 @@ public class LogService implements CommandExecutable {
         log.setUserName(userName);
         log.setDateTime(dateTime);
         log.setText(text);
-        log.setPhoto(photo);
-        log.setDocument(documentId);
-        log.setStiker(sticker);
+        if (Objects.nonNull(file)) {
+            log.setFileType(file.getFirst());
+            log.setFile(file.getSecond());
+        }
         logRepo.save(log);
     }
 

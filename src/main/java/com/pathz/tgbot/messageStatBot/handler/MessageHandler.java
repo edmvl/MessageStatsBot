@@ -8,12 +8,13 @@ import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.HoroscopeEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Document;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 
+import javax.persistence.Tuple;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Logger;
@@ -67,7 +68,7 @@ public class MessageHandler implements Handler<Message> {
         wordsFilterService.deleteByFilter(messageDTO);
         logService.save(
                 messageDTO.getChatId().toString(), message.getChat().getTitle(), messageDTO.getUserId().toString(), messageDTO.getFrom(), LocalDateTime.now(),
-                messageDTO.getUserText(), getMaxSizePhoto(message), getDocumentId(message), getSticker(message)
+                messageDTO.getUserText(), getFile(message)
         );
         if (messageDTO.getUserText().startsWith(BotCommands.HELP_COMMAND.getCommand())) {
             messageExecutor.sendMessage(messageDTO.getChatId(), statsService.getHelp());
@@ -85,26 +86,41 @@ public class MessageHandler implements Handler<Message> {
         return Stream.concat(s1.stream(), s2.stream()).toList();
     }
 
-    private String getSticker(Message message) {
-        Sticker sticker = message.getSticker();
-        return Objects.nonNull(sticker) ? sticker.getFileId() : null;
-    }
-
-    private String getDocumentId(Message message) {
-        Document document = message.getDocument();
-        if (Objects.isNull(document)) {
-            return null;
-        }
-        return document.getFileId();
-    }
-
-    private String getMaxSizePhoto(Message message) {
+    private Pair<String, String> getFile(Message message) {
         List<PhotoSize> photo = message.getPhoto();
-        if (Objects.isNull(photo)) {
-            return null;
+        if (Objects.nonNull(photo)) {
+            Optional<PhotoSize> max = photo.stream().max(Comparator.comparingInt(PhotoSize::getFileSize));
+            return Pair.of("photo", max.map(PhotoSize::getFileId).orElse(null));
         }
-        Optional<PhotoSize> max = photo.stream().max(Comparator.comparingInt(PhotoSize::getFileSize));
-        return max.map(PhotoSize::getFileId).orElse(null);
+        Document document = message.getDocument();
+        if (Objects.nonNull(document)) {
+            return Pair.of("document", document.getFileId());
+        }
+        Sticker sticker = message.getSticker();
+        if (Objects.nonNull(sticker)) {
+            return Pair.of("sticker", sticker.getFileId());
+        }
+        VideoNote videoNote = message.getVideoNote();
+        if (Objects.nonNull(videoNote)) {
+            return Pair.of("video_note", videoNote.getFileId());
+        }
+        Video video = message.getVideo();
+        if (Objects.nonNull(video)) {
+            return Pair.of("video", video.getFileId());
+        }
+        Voice voice = message.getVoice();
+        if (Objects.nonNull(voice)) {
+            return Pair.of("voice", voice.getFileId());
+        }
+        Animation animation = message.getAnimation();
+        if (Objects.nonNull(animation)) {
+            return Pair.of("animation", animation.getFileId());
+        }
+        Audio audio = message.getAudio();
+        if (Objects.nonNull(audio)) {
+            return Pair.of("audio", audio.getFileId());
+        }
+        return null;
     }
 
 }

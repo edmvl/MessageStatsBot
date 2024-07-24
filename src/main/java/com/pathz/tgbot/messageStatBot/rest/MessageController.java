@@ -9,11 +9,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 @RestController
 @RequestMapping("/message")
-public class BaseController {
+public class MessageController {
 
     private final MessageExecutor messageExecutor;
 
-    public BaseController(MessageExecutor messageExecutor) {
+    public MessageController(MessageExecutor messageExecutor) {
         this.messageExecutor = messageExecutor;
     }
 
