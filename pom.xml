@@ -10,10 +10,33 @@
 	</parent>
 	<profiles>
 		<profile>
-			<id>test</id>
+			<id>local-test</id>
+			<properties>
+				<telegram.bot.username>edm1986testbot</telegram.bot.username>
+				<telegram.bot.token>7295874173:AAHhM3aw5Hwn4RpvwgBLmRqBh5l-a8FC640</telegram.bot.token>
+				<spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/postgres</spring.datasource.url>
+				<spring.datasource.username>postgres</spring.datasource.username>
+				<spring.datasource.password>postgres</spring.datasource.password>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
 			<properties>
 				<telegram.bot.username>hamoryalstatsbot</telegram.bot.username>
 				<telegram.bot.token>5944980547:AAGpTcitBMZJcXxqQZ1gtkzKNwvFge2m8io</telegram.bot.token>
+				<spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/tgbot</spring.datasource.url>
+				<spring.datasource.username>postgres</spring.datasource.username>
+				<spring.datasource.password>postgres</spring.datasource.password>
+			</properties>
+		</profile>
+		<profile>
+			<id>remote-prod</id>
+			<properties>
+				<telegram.bot.username>hamoryalstatsbot</telegram.bot.username>
+				<telegram.bot.token>5944980547:AAGpTcitBMZJcXxqQZ1gtkzKNwvFge2m8io</telegram.bot.token>
+				<spring.datasource.url>jdbc:postgresql://192.168.0.88:5432/tgbot</spring.datasource.url>
+				<spring.datasource.username>postgres</spring.datasource.username>
+				<spring.datasource.password>postgres</spring.datasource.password>
 			</properties>
 		</profile>
 	</profiles>
@@ -79,6 +102,16 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui</artifactId>
 			<version>1.13.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf</groupId>
+			<artifactId>thymeleaf</artifactId>
+			<version>3.1.2.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.thymeleaf</groupId>
+			<artifactId>thymeleaf-spring5</artifactId>
+			<version>3.1.2.RELEASE</version>
 		</dependency>
     </dependencies>
 
