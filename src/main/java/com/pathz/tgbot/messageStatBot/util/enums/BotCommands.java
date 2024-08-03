@@ -2,8 +2,7 @@ package com.pathz.tgbot.messageStatBot.util.enums;
 
 public enum BotCommands {
 
-    HELP_COMMAND("/help", "тем тумалла ку ботпа, ăнлантар-ха"),
-    //GET_SILENT_USERS("/шăшисенешыра", "шпиёнсене тупмала, хулăпа хĕнемелле"),
+    START_COMMAND("/start", ""),
     GET_STINKY_ASS("/pohlo", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
     GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе"),
     GET_STATS_ALL("/stat", "вся статистика"),

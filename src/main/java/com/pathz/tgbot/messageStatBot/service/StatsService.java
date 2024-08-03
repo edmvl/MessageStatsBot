@@ -41,11 +41,6 @@ public class StatsService implements CommandExecutable {
         this.settingsService = settingsService;
     }
 
-    public String getHelp() {
-        return Arrays.stream(values()).filter(c -> !c.isForAdmin()).map(
-                botCommand -> botCommand.getCommand() + " : " + botCommand.getExplainer()).collect(Collectors.joining("\n")
-        );
-    }
 
     public List<StatsViewDto> getTop10ChattyUserId(Long chatId) {
         LocalDate startOfDay = LocalDate.now();

@@ -18,7 +18,7 @@ public class TripController {
         this.tripService = tripService;
     }
 
-    @GetMapping("/")
+    @GetMapping()
     public List<TripDto> getTrips() {
         List<Trip> tripList = tripService.getTripList();
         return tripList.stream().map(trip -> TripDto.builder()
@@ -31,9 +31,9 @@ public class TripController {
         ).collect(Collectors.toList());
     }
 
-    @PostMapping("/")
-    public List<TripDto> createTrip(@RequestBody TripDto tripDto) {
-        List<Trip> tripList = tripService.getTripList();
-        return tripList.stream().map(trip -> TripDto.builder().build()).collect(Collectors.toList());
+    @PostMapping()
+    public String createTrip(@RequestBody TripDto tripDto) {
+        String tripId = tripService.createTrip(tripDto);
+        return tripId;
     }
 }

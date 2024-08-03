@@ -10,9 +10,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
+import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 
 import javax.persistence.Tuple;
 import java.time.LocalDateTime;
@@ -70,8 +74,19 @@ public class MessageHandler implements Handler<Message> {
                 messageDTO.getChatId().toString(), message.getChat().getTitle(), messageDTO.getUserId().toString(), messageDTO.getFrom(), LocalDateTime.now(),
                 messageDTO.getUserText(), getFile(message)
         );
-        if (messageDTO.getUserText().startsWith(BotCommands.HELP_COMMAND.getCommand())) {
-            messageExecutor.sendMessage(messageDTO.getChatId(), statsService.getHelp());
+        if (messageDTO.getUserText().startsWith(BotCommands.START_COMMAND.getCommand())) {
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText("Запустить приложение");
+            inlineKeyboardButton.setWebApp(WebAppInfo.builder()
+                            .url("https://api.zhendozzz.ru")
+                    .build());
+            inlineKeyboardMarkup.setKeyboard(List.of(List.of(inlineKeyboardButton)));
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+            sendMessage.setChatId(messageDTO.getChatId());
+            sendMessage.setText("Нажмите кнопку ниже");
+            messageExecutor.sendMessage(sendMessage);
         }
 
         if (getAllBotCommands().stream().anyMatch(s -> messageDTO.getUserText().toLowerCase(Locale.ROOT).startsWith(s.toLowerCase()))) {

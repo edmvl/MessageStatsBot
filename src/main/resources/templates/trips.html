@@ -1,14 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Поиск попутки</title>
+    <title>Создать поездку</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="webjars/jquery-ui/1.13.3/jquery-ui.min.css">
     <script src="webjars/jquery/3.6.1/jquery.min.js"></script>
     <script src="webjars/jquery-ui/1.13.3/jquery-ui.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        label, input {
+            display: block;
+        }
+
+        fieldset {
+            padding: 0;
+            border: 0;
+            margin-top: 25px;
+        }
+
+        h1 {
+            font-size: 1.2em;
+            margin: .6em 0;
+        }
+
+        div#users-contain {
+            width: 350px;
+            margin: 20px 0;
+        }
+
+        div#users-contain table {
+            margin: 1em 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        div#users-contain table td, div#users-contain table th {
+            border: 1px solid #eee;
+            padding: .6em 10px;
+            text-align: left;
+        }
+
+    </style>
+    <script>
+        window.Telegram.WebApp.BackButton.show();
+        window.Telegram.WebApp.BackButton.onClick(()=>window.location.replace("/"));
+        let userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+        $(function () {
+            var dialog, form,
+                direction = $("#direction"),
+                date = $("#date"),
+                seat = $("#seat");
+            let directionValue = direction.val();
+
+            function addTrip() {
+                fetch('/trip/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        userId,
+                        startFrom: directionValue.split("-")[0],
+                        destination: directionValue.split("-")[1],
+                        dateTime: date.val(),
+                        seat: seat.val(),
+                        published: true,
+                    })
+                });
+                dialog.dialog("close");
+            }
+
+            dialog = $("#dialog-form").dialog({
+                autoOpen: false,
+                height: 400,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Опубликовать": addTrip,
+                    "Отмена": function () {
+                        dialog.dialog("close");
+                    }
+                },
+            });
+
+            form = dialog.find("form").on("submit", function (event) {
+                event.preventDefault();
+                addTrip();
+                dialog.dialog("close");
+            });
+
+            $("#create-user").button().on("click", function () {
+                dialog.dialog("open");
+                window.location.reload();
+            });
+        });
+    </script>
 </head>
 <body>
+<div id="dialog-form" title="Новая поездка">
+    <fieldset>
+        <label for="direction">Направление</label>
+        <select name="direction" id="direction">
+            <option value="Урмары-Чебоксары">Урмары-Чебоксары</option>
+            <option value="Чебоксары-Урмары">Чебоксары-Урмары</option>
+            <option value="Урмары-Новочебоксарск">Урмары-Новочебоксарск</option>
+            <option value="Новочебоксарск-Урмары">Новочебоксарск-Урмары</option>
+        </select>
+        <label for="date">Дата</label>
+        <input type="datetime-local"
+               name="date"
+               id="date"
+               th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}"
+        >
+        <label for="seat">Свободных мест</label>
+        <input type="number" name="seat" id="seat" value="1" min="1">
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+</div>
+
+<div id="users-contain" class="ui-widget">
+    <h1>Поездки</h1>
+    <table id="users" class="ui-widget ui-widget-content">
+        <tr th:each="trip : ${tripList}">
+            <td th:text="${trip.startFrom} +'-'+ ${trip.destination}"></td>
+            <td th:text="${{trip.dateTime}}"></td>
+            <td th:text="'Мест:' + ${trip.seat}"></td>
+            <td>
+                <a th:href="'tg://user?id=' + ${trip.userId}">Написать</a>
+            </td>
+        </tr>
+    </table>
+</div>
+<button id="create-user">Создать поездку</button>
 
 </body>
 </html>

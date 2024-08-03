@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
+import com.pathz.tgbot.messageStatBot.dto.TripDto;
 import com.pathz.tgbot.messageStatBot.entity.Booking;
 import com.pathz.tgbot.messageStatBot.entity.Trip;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
@@ -10,6 +11,7 @@ import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -18,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -235,6 +238,18 @@ public class TripService implements CommandExecutable {
         trip.setUserId(String.valueOf(userId));
         trip.setStartFrom(tripDirection.getStartLocation());
         trip.setDestination(tripDirection.getFinishLocation());
+        Trip save = tripRepo.save(trip);
+        return save.getId().toString();
+    }
+
+    public String createTrip(TripDto tripDto) {
+        Trip trip = new Trip();
+        trip.setUserId(tripDto.getUserId());
+        trip.setStartFrom(tripDto.getStartFrom());
+        trip.setDestination(tripDto.getDestination());
+        trip.setDateTime(LocalDateTime.ofInstant(tripDto.getDateTime().toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
+        trip.setSeat(tripDto.getSeat());
+        trip.setPublished(true);
         Trip save = tripRepo.save(trip);
         return save.getId().toString();
     }
