@@ -45,15 +45,15 @@ public class LogService implements CommandExecutable {
         logRepo.save(log);
     }
 
-    public void sendChanged(Long chatId, Integer messageId) {
-        List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId));
+    public void sendChanged(Long chatId, String userId) {
+        List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId), userId);
         String collect = userChangedHistoryByChatId.stream().map(s -> s + "\n").collect(Collectors.joining("===================\n"));
         messageExecutor.sendMessage(chatId, collect);
     }
     @Override
     public void executeCommand(MessageDTO messageDTO) {
         if (messageDTO.getUserText().startsWith(BotCommands.CHANGED_USERS.getCommand())) {
-            sendChanged(messageDTO.getChatId(), messageDTO.getMessageId());
+            sendChanged(messageDTO.getChatId(), messageDTO.getUserId().toString());
         }
     }
 }

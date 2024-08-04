@@ -74,20 +74,6 @@ public class MessageHandler implements Handler<Message> {
                 messageDTO.getChatId().toString(), message.getChat().getTitle(), messageDTO.getUserId().toString(), messageDTO.getFrom(), LocalDateTime.now(),
                 messageDTO.getUserText(), getFile(message)
         );
-        if (messageDTO.getUserText().startsWith(BotCommands.START_COMMAND.getCommand())) {
-            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-            inlineKeyboardButton.setText("Запустить приложение");
-            inlineKeyboardButton.setWebApp(WebAppInfo.builder()
-                            .url("https://api.zhendozzz.ru")
-                    .build());
-            inlineKeyboardMarkup.setKeyboard(List.of(List.of(inlineKeyboardButton)));
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setReplyMarkup(inlineKeyboardMarkup);
-            sendMessage.setChatId(messageDTO.getChatId());
-            sendMessage.setText("Нажмите кнопку ниже");
-            messageExecutor.sendMessage(sendMessage);
-        }
 
         if (getAllBotCommands().stream().anyMatch(s -> messageDTO.getUserText().toLowerCase(Locale.ROOT).startsWith(s.toLowerCase()))) {
             commandExecutables.forEach(service -> service.executeCommand(messageDTO));

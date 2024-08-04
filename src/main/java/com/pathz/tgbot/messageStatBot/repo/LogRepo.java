@@ -19,9 +19,9 @@ public interface LogRepo extends JpaRepository<Log, Long> {
     List<String> findLastUserNameByChatId(String chatId, String userId);
 
     @Query(value = "select string_agg(l2.user_name, ', ')  from ( select  l.user_id, user_name from log l " +
-            "where chat_id=?1 group by l.user_id, l.user_name order by l.user_id desc ) l2  " +
-            "group by l2.user_id having count(l2.user_name)>1", nativeQuery = true)
-    List<String> findUserChangedHistoryByChatId(String chatId);
+            "where chat_id=?1 and user_id=?2 group by l.user_id, l.user_name order by l.user_id desc ) l2  " +
+            "group by l2.user_id", nativeQuery = true)
+    List<String> findUserChangedHistoryByChatId(String chatId, String userId);
 
     @Query(value = "select distinct l.chat_id from log l where cast(l.chat_id as bigint)<0", nativeQuery = true)
     List<String> findDistinctChatId();

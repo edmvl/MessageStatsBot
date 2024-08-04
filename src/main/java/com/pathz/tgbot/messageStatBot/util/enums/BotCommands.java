@@ -13,10 +13,10 @@ public enum BotCommands {
     GET_CHATTY_DAYS("/days", "статистика по дням"),
     CHALLANGE_START("/challenge", "начать розыгрыш", true),
     CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш"),
-    TRIP("/trip", "Создать поездку"),
+    TRIP("/trip", "Поиск попутки или попутчиков"),
+    TAXI("/taxi", "Поиск такси"),
     REMINDER("/rem", "Создать напоминание"),
-    QUIZ("/quiz", "Создать напоминание"),
-    FIND_NEAREST_TRIP("/triplist", "Найти ближайшие поездки"),
+    QUIZ("/quiz", "Запустить викторину"),
     ;
 
     public String getCommand() {

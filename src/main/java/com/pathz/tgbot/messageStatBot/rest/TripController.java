@@ -1,5 +1,6 @@
 package com.pathz.tgbot.messageStatBot.rest;
 
+import com.pathz.tgbot.messageStatBot.dto.ContactDto;
 import com.pathz.tgbot.messageStatBot.dto.TripDto;
 import com.pathz.tgbot.messageStatBot.entity.Trip;
 import com.pathz.tgbot.messageStatBot.service.TripService;
@@ -35,5 +36,10 @@ public class TripController {
     public String createTrip(@RequestBody TripDto tripDto) {
         String tripId = tripService.createTrip(tripDto);
         return tripId;
+    }
+
+    @PostMapping("/write")
+    public void write(@RequestBody ContactDto contactDto) {
+        tripService.sendContact(contactDto);
     }
 }

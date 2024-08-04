@@ -1,22 +1,21 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.ContactDto;
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.dto.TripDto;
-import com.pathz.tgbot.messageStatBot.entity.Booking;
 import com.pathz.tgbot.messageStatBot.entity.Trip;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
-import com.pathz.tgbot.messageStatBot.repo.BookingRepo;
 import com.pathz.tgbot.messageStatBot.repo.TripRepo;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.enums.TripDirection;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,14 +30,12 @@ import static com.pathz.tgbot.messageStatBot.util.enums.InlineCommand.*;
 public class TripService implements CommandExecutable {
     private final MessageExecutor messageExecutor;
     private final TripRepo tripRepo;
-    private final BookingRepo bookingRepo;
 
     private final SettingsService settingsService;
 
-    public TripService(MessageExecutor messageExecutor, TripRepo tripRepo, BookingRepo bookingRepo, SettingsService settingsService) {
+    public TripService(MessageExecutor messageExecutor, TripRepo tripRepo, SettingsService settingsService) {
         this.messageExecutor = messageExecutor;
         this.tripRepo = tripRepo;
-        this.bookingRepo = bookingRepo;
         this.settingsService = settingsService;
     }
 
@@ -65,20 +62,6 @@ public class TripService implements CommandExecutable {
                 .collect(Collectors.toList());
     }
 
-
-    public void registerToTrip(Long tripId, String userId, String startFrom, String destination, int seat) {
-        Booking booking = new Booking();
-        booking.setTripId(tripId);
-        booking.setUserId(userId);
-        booking.setStartFrom(startFrom);
-        booking.setDestination(destination);
-        booking.setSeat(seat);
-        bookingRepo.save(booking);
-    }
-
-    public void publishBooking() {
-
-    }
 
     public void confirmTripParams(Long chatId, String id) {
         Long tripId = Long.valueOf(id);
@@ -292,11 +275,25 @@ public class TripService implements CommandExecutable {
     public void executeCommand(MessageDTO messageDTO) {
         if (messageDTO.getUserText().equals(BotCommands.TRIP.getCommand())) {
             messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
-            selectTripDirection(messageDTO.getChatId());
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText("Запустить приложение");
+            inlineKeyboardButton.setWebApp(WebAppInfo.builder()
+                    .url("https://api.zhendozzz.ru/app/trips")
+                    .build());
+            inlineKeyboardMarkup.setKeyboard(List.of(List.of(inlineKeyboardButton)));
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+            sendMessage.setChatId(messageDTO.getChatId());
+            sendMessage.setText("Поиск попутки");
+            messageExecutor.sendMessage(sendMessage);
         }
-        if (messageDTO.getUserText().equals(BotCommands.FIND_NEAREST_TRIP.getCommand())) {
-            messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
-            findNearestTrip(messageDTO.getChatId());
-        }
+    }
+
+    public void sendContact(ContactDto contactDto) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(contactDto.getUserId());
+        sendMessage.setText(contactDto.getDriverId());
+        messageExecutor.sendMessage(sendMessage);
     }
 }
