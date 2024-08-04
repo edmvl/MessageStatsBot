@@ -13,9 +13,7 @@ import java.util.List;
 @Repository
 public interface LogRepo extends JpaRepository<Log, Long> {
 
-    @Query(value = "select string_agg(l2.user_name, ', ')  from ( select  l.user_id, user_name from log l " +
-            "where chat_id=?1 and user_id=?2 group by l.user_id, l.user_name order by l.user_id desc limit 1) l2  " +
-            "group by l2.user_id", nativeQuery = true)
+    @Query(value = "select user_name from log where user_id=?2 and chat_id = ?1 order by id desc limit 1;", nativeQuery = true)
     List<String> findLastUserNameByChatId(String chatId, String userId);
 
     @Query(value = "select string_agg(l2.user_name, ', ')  from ( select  l.user_id, user_name from log l " +
