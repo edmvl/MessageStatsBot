@@ -28,6 +28,9 @@ public class Trip {
     @Column(name = "destination")
     String destination;
 
+    @Column(name = "phone")
+    String phone;
+
     @Column(name = "seat")
     int seat;
 

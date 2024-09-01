@@ -13,6 +13,7 @@ public class TripDto {
     private LocalDateTime dateTime;
     private String startFrom;
     private String destination;
+    private String phone;
     private int seat;
     private boolean published;
 }

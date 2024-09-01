@@ -33,7 +33,7 @@ public class HoroService implements CommandExecutable {
     synchronized public void grubDataFromResource() {
         LocalDate now = LocalDate.now();
         Arrays.stream(HoroscopeEnum.values())
-                .map(sign -> parseHoro(sign.getSysname()))
+                .map(this::parseHoro)
                 .forEach(data -> horoRepository.save(Horo.builder()
                         .date(now)
                         .sign(data.getFirst())
@@ -71,15 +71,15 @@ public class HoroService implements CommandExecutable {
     }
 
     @SneakyThrows
-    private Pair<String, String> parseHoro(String sign) {
-        String url = "https://horo.mail.ru/prediction/" + sign + "/today/";
+    private Pair<String, String> parseHoro(HoroscopeEnum sign) {
+        String url = "https://horo.mail.ru/prediction/" + sign.getSysname() + "/today/";
         Document document = getHTMLPage(url);
         while (Objects.isNull(document)) {
             Thread.sleep(10000);
             document = getHTMLPage(url);
         }
-        String text = document.body().select(".article__item").text();
-        return Pair.of(sign, text);
+        String text = document.body().select("[data-qa=ArticleLayout]").text();
+        return Pair.of(sign.getSysname(), text);
     }
 
     private Document getHTMLPage(String url) {

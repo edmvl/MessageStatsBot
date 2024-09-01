@@ -232,6 +232,7 @@ public class TripService implements CommandExecutable {
         trip.setDestination(tripDto.getDestination());
         trip.setDateTime(LocalDateTime.ofInstant(tripDto.getDateTime().toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         trip.setSeat(tripDto.getSeat());
+        trip.setPhone(tripDto.getPhone());
         trip.setPublished(true);
         Trip save = tripRepo.save(trip);
         return save.getId().toString();
@@ -288,12 +289,5 @@ public class TripService implements CommandExecutable {
             sendMessage.setText("Поиск попутки");
             messageExecutor.sendMessage(sendMessage);
         }
-    }
-
-    public void sendContact(ContactDto contactDto) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(contactDto.getUserId());
-        sendMessage.setText(contactDto.getDriverId());
-        messageExecutor.sendMessage(sendMessage);
     }
 }

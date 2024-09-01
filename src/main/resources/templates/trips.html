@@ -49,6 +49,7 @@
             var dialog, form,
                 direction = $("#direction"),
                 date = $("#date"),
+                phone = $("#phone"),
                 seat = $("#seat");
 
             function addTrip() {
@@ -63,23 +64,9 @@
                         startFrom: directionValue.split("-")[0],
                         destination: directionValue.split("-")[1],
                         dateTime: date.val(),
+                        phone: phone.val().trim(),
                         seat: seat.val(),
                         published: true,
-                    })
-                });
-                dialog.dialog("close");
-            }
-
-            function write(driverId) {
-                let directionValue = direction.val();
-                fetch('/trip/write', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json;charset=utf-8'
-                    },
-                    body: JSON.stringify({
-                        userId,
-                        driverId
                     })
                 });
                 dialog.dialog("close");
@@ -107,12 +94,13 @@
             });
 
             $("#create-trip").button().on("click", function () {
+                window.Telegram.WebView.onEvent("custom_method_invoked", (e, d) => {
+                    let ur = decodeURIComponent(d.result);
+                    let phone_number = JSON.parse(new URLSearchParams(ur).get("contact")).phone_number;
+                    $("#phone").val("+" + phone_number);
+                })
+                window.Telegram.WebApp.requestContact();
                 dialog.dialog("open");
-            });
-            $(".write-btn").button().on("click", function (e) {
-                var {driverid = {}} = e.target.attributes;
-                var {value} = driverid;
-                write(value);
             });
         });
     </script>
@@ -133,6 +121,11 @@
                id="date"
                th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}"
         >
+        <label for="date">Номер телефона для связи</label>
+        <input type="tel"
+               name="phone"
+               id="phone"
+        >
         <label for="seat">Свободных мест</label>
         <input type="number" name="seat" id="seat" value="1" min="1">
         <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
@@ -147,7 +140,7 @@
             <td th:text="${{trip.dateTime}}"></td>
             <td th:text="'Мест:' + ${trip.seat}"></td>
             <td>
-                <button class="write-btn" th:attr="driverId=${trip.userId}">Написать</button>
+                <a th:href="'https://t.me/' + ${trip.phone}">Написать</a>
             </td>
         </tr>
     </table>

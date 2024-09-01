@@ -28,6 +28,7 @@ public class TripController {
                 .startFrom(trip.getStartFrom())
                 .userId(trip.getUserId())
                 .seat(trip.getSeat())
+                .phone(trip.getPhone())
                 .build()
         ).collect(Collectors.toList());
     }
@@ -36,10 +37,5 @@ public class TripController {
     public String createTrip(@RequestBody TripDto tripDto) {
         String tripId = tripService.createTrip(tripDto);
         return tripId;
-    }
-
-    @PostMapping("/write")
-    public void write(@RequestBody ContactDto contactDto) {
-        tripService.sendContact(contactDto);
     }
 }

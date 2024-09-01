@@ -8,4 +8,5 @@ import lombok.Data;
 public class ContactDto {
     private String userId;
     private String driverId;
+    private String tripId;
 }
