@@ -108,7 +108,7 @@ public class StatsService implements CommandExecutable {
     private void sendMessage(Long chatId, List<MessageEntity> messageEntities, String text) {
         SendMessage sendMessage = new SendMessage();
         if (messageEntities.isEmpty()) {
-            sendMessage.setText("Тем çирман паян...");
+            sendMessage.setText("Тем çырман паян...");
         } else {
             sendMessage.setEntities(messageEntities);
             sendMessage.setText(text);
