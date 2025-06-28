@@ -1,12 +1,7 @@
 package com.pathz.tgbot.messageStatBot.util;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -44,19 +39,6 @@ public class MessageFormatter {
         builder.append("/");
         builder.append(now.getDayOfMonth());
         return builder.toString();
-    }
-
-    public static Document getHTMLPage(String url) {
-        try {
-            return Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .followRedirects(true)
-                    .execute()
-                    .parse();
-        } catch (IOException e) {
-            return null;
-        }
     }
 
     public static String formatTripDate(LocalDateTime dateTime) {

@@ -40,4 +40,6 @@ public interface LogRepo extends JpaRepository<Log, Long> {
 
     @Query(value = "select distinct l.user_id from log l where l.chat_id = ?1", nativeQuery = true)
     List<String> findDistinctUserIdByChatId(String chatId);
+
+    List<Log> getLogByChatIdAndDateTimeBetween(String chatId, LocalDateTime dateTimeAfter, LocalDateTime dateTimeBefore);
 }

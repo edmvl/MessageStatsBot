@@ -17,10 +17,4 @@ class MessageFormatterTest {
         Assertions.assertEquals("https://kakoysegodnyaprazdnik.ru/baza/mart/25", urlByDate);
     }
 
-    @Test
-    void getHTMLPageTest() {
-        Document document = MessageFormatter.getHTMLPage("https://kakoysegodnyaprazdnik.ru/baza/mart/25");
-        List<String> strings = document.body().select("span[itemprop='text']").eachText();
-        System.out.println(strings);
-    }
 }

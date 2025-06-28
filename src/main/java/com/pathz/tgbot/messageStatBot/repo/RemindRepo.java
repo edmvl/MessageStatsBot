@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface RemindRepo extends JpaRepository<Remind, Long> {
     List<Remind> findAllByActiveIsTrueAndChatId(String chatId);
+    List<Remind> getRemindByChatIdAndReplyMessageId(String chatId, String replyMessageId);
 }

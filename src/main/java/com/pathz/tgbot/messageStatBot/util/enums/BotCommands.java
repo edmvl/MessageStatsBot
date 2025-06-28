@@ -16,6 +16,7 @@ public enum BotCommands {
     TRIP("/trip", "Поиск попутки или попутчиков"),
     TAXI("/taxi", "Поиск такси"),
     REMINDER("/rem", "Создать напоминание"),
+    REMOVE_REMINDER("/stoprem", "Создать напоминание"),
     QUIZ("/quiz", "Запустить викторину"),
     ;
 

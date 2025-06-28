@@ -45,6 +45,10 @@ public class LogService implements CommandExecutable {
         logRepo.save(log);
     }
 
+    public List<Log> findByChatId(String chatId) {
+        return  logRepo.getLogByChatIdAndDateTimeBetween(chatId, LocalDateTime.now().minusDays(1), LocalDateTime.now());
+    }
+
     public void sendChanged(Long chatId, String userId) {
         List<String> userChangedHistoryByChatId = logRepo.findUserChangedHistoryByChatId(String.valueOf(chatId), userId);
         String collect = userChangedHistoryByChatId.stream().map(s -> s + "\n").collect(Collectors.joining("===================\n"));

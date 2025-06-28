@@ -31,6 +31,12 @@ public class RemindService implements CommandExecutable {
         remindRepo.save(remind);
     }
 
+    public void removeReminder(Long chatId, Long userId, Integer replyMessageId, String text) {
+        List<Remind> reminds = remindRepo.getRemindByChatIdAndReplyMessageId(String.valueOf(chatId), String.valueOf(replyMessageId));
+        reminds.forEach(remind -> remind.setActive(false));
+        remindRepo.saveAll(reminds);
+    }
+
     @Override
     public void executeCommand(MessageDTO messageDTO) {
         String userText = messageDTO.getUserText();
@@ -38,6 +44,10 @@ public class RemindService implements CommandExecutable {
         if (userText.startsWith(BotCommands.REMINDER.getCommand())) {
             addReminder(messageDTO.getChatId(), messageDTO.getUserId(), messageDTO.getReplyMessageId(), reminderText);
             messageExecutor.sendMessage(messageDTO.getChatId(), reminderText, messageDTO.getReplyMessageId());
+        }
+        if (userText.startsWith(BotCommands.REMOVE_REMINDER.getCommand())) {
+            removeReminder(messageDTO.getChatId(), messageDTO.getUserId(), messageDTO.getReplyMessageId(), reminderText);
+            messageExecutor.sendMessage(messageDTO.getChatId(), "Напоминание остановлено", messageDTO.getReplyMessageId());
         }
     }
 

@@ -10,15 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
-import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 
-import javax.persistence.Tuple;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Logger;
@@ -27,8 +22,7 @@ import java.util.stream.Stream;
 @Component
 public class MessageHandler implements Handler<Message> {
 
-    private final MessageExecutor messageExecutor;
-    private final StatsService statsService;
+    private final FileLoaderService fileLoaderService;
     private final LogService logService;
     private final WordsFilterService wordsFilterService;
 
@@ -40,11 +34,10 @@ public class MessageHandler implements Handler<Message> {
     private String botUsername;
 
     @Lazy
-    public MessageHandler(MessageExecutor messageExecutor, StatsService service, LogService logService,
-                          WordsFilterService wordsFilterService, List<CommandExecutable> commandExecutables, List<AnswerCheckable> answerCheckables)
-    {
-        this.messageExecutor = messageExecutor;
-        this.statsService = service;
+    public MessageHandler(FileLoaderService fileLoaderService, LogService logService,
+                          WordsFilterService wordsFilterService, List<CommandExecutable> commandExecutables,
+                          List<AnswerCheckable> answerCheckables) {
+        this.fileLoaderService = fileLoaderService;
         this.logService = logService;
         this.wordsFilterService = wordsFilterService;
         this.commandExecutables = commandExecutables;
@@ -70,11 +63,15 @@ public class MessageHandler implements Handler<Message> {
                 )
                 .build();
         wordsFilterService.deleteByFilter(messageDTO);
+        Pair<String, String> file = getFile(message);
         logService.save(
                 messageDTO.getChatId().toString(), message.getChat().getTitle(), messageDTO.getUserId().toString(), messageDTO.getFrom(), LocalDateTime.now(),
-                messageDTO.getUserText(), getFile(message)
+                messageDTO.getUserText(), file
         );
-
+        if (Objects.nonNull(file)) {
+            String second = file.getSecond();
+            fileLoaderService.downloadFile(second);
+        }
         if (getAllBotCommands().stream().anyMatch(s -> messageDTO.getUserText().toLowerCase(Locale.ROOT).startsWith(s.toLowerCase()))) {
             commandExecutables.forEach(service -> service.executeCommand(messageDTO));
         }

@@ -34,7 +34,7 @@
 			<properties>
 				<telegram.bot.username>hamoryalstatsbot</telegram.bot.username>
 				<telegram.bot.token>5944980547:AAGpTcitBMZJcXxqQZ1gtkzKNwvFge2m8io</telegram.bot.token>
-				<spring.datasource.url>jdbc:postgresql://192.168.0.88:5432/tgbot</spring.datasource.url>
+				<spring.datasource.url>jdbc:postgresql://192.168.0.87:5432/tgbot</spring.datasource.url>
 				<spring.datasource.username>postgres</spring.datasource.username>
 				<spring.datasource.password>postgres</spring.datasource.password>
 			</properties>
