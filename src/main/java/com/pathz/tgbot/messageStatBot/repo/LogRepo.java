@@ -1,14 +1,18 @@
 package com.pathz.tgbot.messageStatBot.repo;
 
+import com.pathz.tgbot.messageStatBot.dto.ChatViewDto;
 import com.pathz.tgbot.messageStatBot.dto.ChattyDaysDto;
 import com.pathz.tgbot.messageStatBot.dto.StatsViewDto;
 import com.pathz.tgbot.messageStatBot.entity.Log;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface LogRepo extends JpaRepository<Log, Long> {
@@ -41,5 +45,8 @@ public interface LogRepo extends JpaRepository<Log, Long> {
     @Query(value = "select distinct l.user_id from log l where l.chat_id = ?1", nativeQuery = true)
     List<String> findDistinctUserIdByChatId(String chatId);
 
-    List<Log> getLogByChatIdAndDateTimeBetween(String chatId, LocalDateTime dateTimeAfter, LocalDateTime dateTimeBefore);
+    Page<Log> getLogByChatIdOrderByIdDesc(String chatId, Pageable pageable);
+
+    @Query(value = "select s.chat_id as chatId, (select chat_name from log where chat_id = s.chat_id order by log.id desc limit 1) as chatName from (select distinct chat_id from log where chat_name is not null) as s", nativeQuery = true)
+    List<ChatViewDto> getAllChats();
 }

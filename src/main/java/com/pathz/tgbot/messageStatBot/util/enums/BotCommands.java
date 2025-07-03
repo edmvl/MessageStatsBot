@@ -18,6 +18,7 @@ public enum BotCommands {
     REMINDER("/rem", "Создать напоминание"),
     REMOVE_REMINDER("/stoprem", "Создать напоминание"),
     QUIZ("/quiz", "Запустить викторину"),
+    CHATS("/chats", "Посмотреть истории чатов"),
     ;
 
     public String getCommand() {

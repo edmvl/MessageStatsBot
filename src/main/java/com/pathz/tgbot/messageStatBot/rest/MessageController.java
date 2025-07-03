@@ -27,9 +27,4 @@ public class MessageController {
     public Integer parse(@RequestBody SendMessage message) {
         return messageExecutor.sendMessage(message);
     }
-
-    @GetMapping("/messages/{chatId}")
-    public List<Log> parse(@PathVariable("chatId") String chatId) {
-        return logService.findByChatId(chatId);
-    }
 }

@@ -1,10 +1,12 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.ChatViewDto;
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Log;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
 import com.pathz.tgbot.messageStatBot.repo.LogRepo;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +47,12 @@ public class LogService implements CommandExecutable {
         logRepo.save(log);
     }
 
-    public List<Log> findByChatId(String chatId) {
-        return  logRepo.getLogByChatIdAndDateTimeBetween(chatId, LocalDateTime.now().minusDays(1), LocalDateTime.now());
+    public List<Log> findByChatId(String chatId, int page, int size) {
+        return  logRepo.getLogByChatIdOrderByIdDesc(chatId, PageRequest.of(page, size)).toList();
+    }
+
+    public List<ChatViewDto> getAllChats() {
+        return logRepo.getAllChats();
     }
 
     public void sendChanged(Long chatId, String userId) {
