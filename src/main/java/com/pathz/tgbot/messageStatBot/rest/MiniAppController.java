@@ -55,6 +55,8 @@ public class MiniAppController {
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("count", cnt);
         model.addAttribute("chatId", chatId);
+        Log log = messages.stream().findFirst().orElseGet(Log::new);
+        model.addAttribute("chatName", log.getChatName());
         model.addAttribute("nextPage", currentPage + 1);
         model.addAttribute("prevPage", Math.max(currentPage - 1, 0));
         return "chat";
@@ -80,4 +82,24 @@ public class MiniAppController {
         model.addAttribute("taxiList", taxiList);
         return "taxi";
     }
+
+    @GetMapping("/rating/{chatId}")
+    public String ratingView(
+            @PathVariable String chatId,
+            @QueryParam("page") String page,
+            @QueryParam("count") String count,
+            Model model
+    ) {
+        int currentPage = Integer.parseInt(Objects.nonNull(page) ? page : "0");
+        int cnt = Integer.parseInt(Objects.nonNull(count) ? count : "30");
+        List<Log> messages = logService.findByChatId(chatId, currentPage, cnt);
+        model.addAttribute("messages", messages);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("count", cnt);
+        model.addAttribute("chatId", chatId);
+        model.addAttribute("nextPage", currentPage + 1);
+        model.addAttribute("prevPage", Math.max(currentPage - 1, 0));
+        return "rating";
+    }
+
 }

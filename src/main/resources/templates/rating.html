@@ -49,7 +49,7 @@
 </head>
 <body>
 <div id="users-contain" class="ui-widget">
-    <h1 th:text="${chatName}"></h1>
+    <h1>Логи чата</h1>
     <table id="users" class="ui-widget ui-widget-content">
         <tr th:each="message : ${messages}">
             <td th:text="${{message.getDateTime()}}"></td>
