@@ -2,6 +2,8 @@ package com.pathz.tgbot.messageStatBot.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -12,8 +14,12 @@ public class MessageDTO {
     private String chatName;
     private Integer messageId;
     private Integer replyMessageId;
+    private LocalDateTime dateTime;
     private Long userId;
     private String userName;
+    private String userFirstName;
+    private String userLastName;
+    private String userPhone;
     private String userText;
 
 }

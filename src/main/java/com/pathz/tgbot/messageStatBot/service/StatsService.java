@@ -44,9 +44,7 @@ public class StatsService implements CommandExecutable {
 
     public List<StatsViewDto> getTop10ChattyUserId(Long chatId) {
         LocalDate startOfDay = LocalDate.now();
-        LocalDateTime localDateTime = startOfDay.atStartOfDay();
-        LocalDateTime endDate = startOfDay.atStartOfDay().withHour(23).withMinute(59).withSecond(59);
-        return logRepo.findFirst10ByChatIdAndDateOrderByCountDesc(chatId.toString(), localDateTime, endDate);
+        return getTopChattyUserId(chatId, startOfDay);
     }
 
     public List<StatsViewDto> getTopChattyUserId(Long chatId, LocalDate date) {

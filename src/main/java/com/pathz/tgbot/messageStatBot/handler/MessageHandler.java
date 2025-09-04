@@ -14,7 +14,9 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -49,10 +51,13 @@ public class MessageHandler implements Handler<Message> {
         MessageDTO messageDTO = MessageDTO.builder()
                 .chatId(message.getChatId())
                 .chatName(message.getChat().getTitle())
+                .dateTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(message.getDate()), ZoneId.systemDefault()))
                 .messageId(message.getMessageId())
                 .replyMessageId(Objects.nonNull(message.getReplyToMessage()) ? message.getReplyToMessage().getMessageId() : null)
                 .userId(message.getFrom().getId())
                 .userName(message.getFrom().getUserName())
+                .userFirstName(message.getFrom().getFirstName())
+                .userLastName(message.getFrom().getLastName())
                 .userText(message.hasText() ? String.join("", message.getText().split("@" + botUsername)) : "")
                 .from(
                         MessageFormatter.trimNull(
@@ -64,10 +69,7 @@ public class MessageHandler implements Handler<Message> {
                 .build();
         wordsFilterService.deleteByFilter(messageDTO);
         Pair<String, String> file = getFile(message);
-        logService.save(
-                messageDTO.getChatId().toString(), message.getChat().getTitle(), messageDTO.getUserId().toString(), messageDTO.getFrom(), LocalDateTime.now(),
-                messageDTO.getUserText(), file
-        );
+        logService.save(messageDTO, file);
         if (Objects.nonNull(file)) {
             String second = file.getSecond();
             fileLoaderService.downloadFile(second);

@@ -16,13 +16,8 @@ import java.util.List;
 @Repository
 public interface LogRepo extends JpaRepository<Log, Long> {
 
-    @Query(value = "select user_name from log where user_id=?2 and chat_id = ?1 order by id desc limit 1;", nativeQuery = true)
+    @Query(value = "select concat_ws(' ', user_first_name ,  user_last_name) || COALESCE(' (' || user_name || ')', '')  from log where user_id=?2 and chat_id = ?1 order by id desc limit 1;", nativeQuery = true)
     List<String> findLastUserNameByChatId(String chatId, String userId);
-
-    @Query(value = "select string_agg(l2.user_name, ', ')  from ( select  l.user_id, user_name from log l " +
-            "where chat_id=?1 and user_id=?2 group by l.user_id, l.user_name order by l.user_id desc ) l2  " +
-            "group by l2.user_id", nativeQuery = true)
-    List<String> findUserChangedHistoryByChatId(String chatId, String userId);
 
     @Query(value = "select distinct l.chat_id from log l where cast(l.chat_id as bigint)<0", nativeQuery = true)
     List<String> findDistinctChatId();

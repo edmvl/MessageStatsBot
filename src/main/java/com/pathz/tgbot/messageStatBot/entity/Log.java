@@ -27,6 +27,12 @@ public class Log {
     @Column(name = "user_name")
     String userName;
 
+    @Column(name = "user_last_name")
+    String userLastName;
+
+    @Column(name = "user_first_name")
+    String userFirstName;
+
     @Column(name = "chat_name")
     String chatName;
 
@@ -38,5 +44,8 @@ public class Log {
 
     @Column(name = "file")
     String file;
+
+    @Column(name = "logger_type")
+    String loggerType;
 
 }
