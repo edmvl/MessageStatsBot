@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface LogRepo extends JpaRepository<Log, Long> {
@@ -45,7 +44,7 @@ public interface LogRepo extends JpaRepository<Log, Long> {
     @Query(value = "select distinct l.user_id from log l where l.chat_id = ?1", nativeQuery = true)
     List<String> findDistinctUserIdByChatId(String chatId);
 
-    Page<Log> getLogByChatIdOrderByIdDesc(String chatId, Pageable pageable);
+    Page<Log> getLogByChatIdOrderByDateTimeDesc(String chatId, Pageable pageable);
 
     @Query(value = "select s.chat_id as chatId, (select chat_name from log where chat_id = s.chat_id order by log.id desc limit 1) as chatName from (select distinct chat_id from log where chat_name is not null) as s", nativeQuery = true)
     List<ChatViewDto> getAllChats();

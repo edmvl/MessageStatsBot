@@ -48,7 +48,7 @@ public class LogService implements CommandExecutable {
     }
 
     public List<Log> findByChatId(String chatId, int page, int size) {
-        return  logRepo.getLogByChatIdOrderByIdDesc(chatId, PageRequest.of(page, size)).toList();
+        return  logRepo.getLogByChatIdOrderByDateTimeDesc(chatId, PageRequest.of(page, size)).toList();
     }
 
     public List<ChatViewDto> getAllChats() {
