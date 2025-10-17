@@ -43,7 +43,7 @@
     </style>
     <script>
         window.Telegram.WebApp.BackButton.show();
-        window.Telegram.WebApp.BackButton.onClick(()=>window.location.replace("/app/chats"));
+        window.Telegram.WebApp.BackButton.onClick(() => window.location.replace("/app/chats"));
         let userId = window.Telegram.WebApp.initDataUnsafe.user.id;
     </script>
 </head>
@@ -53,7 +53,13 @@
     <table id="users" class="ui-widget ui-widget-content">
         <tr th:each="message : ${messages}">
             <td th:text="${{message.getDateTime()}}"></td>
-            <td th:text="${{message.getUserName()}}"></td>
+            <td>
+                <div th:text="${{message.getUserFirstName()}}"></div>
+                <div th:text="${{message.getUserLastName()}}"></div>
+                <div th:if="${{message.getUserName()}}">
+                    (<span th:text="${{message.getUserName()}}"></span>)
+                </div>
+            </td>
             <td th:text="${{message.getText()}}"></td>
         </tr>
     </table>

@@ -10,17 +10,17 @@ import java.time.LocalDateTime;
 public class Job {
 
     private final StatsService statsService;
-    private final StinkyService stinkyService;
+    private final SelectedService selectedService;
     private final ChallengeService challengeService;
     private final HoroService horoService;
     private final HolidayService holidayService;
     private final RemindService remindService;
 
-    public Job(StatsService statsService, StinkyService stinkyService, ChallengeService challengeService,
+    public Job(StatsService statsService, SelectedService selectedService, ChallengeService challengeService,
                HoroService horoService, HolidayService holidayService,
                RemindService remindService) {
         this.statsService = statsService;
-        this.stinkyService = stinkyService;
+        this.selectedService = selectedService;
         this.challengeService = challengeService;
         this.horoService = horoService;
         this.holidayService = holidayService;
@@ -35,10 +35,10 @@ public class Job {
     }
 
     @Scheduled(cron = "0 0 10 * * ?")
-    public void sendStinky() {
-        System.out.println("sendStinky started at " + LocalDateTime.now());
-        stinkyService.sendStinkyAllChat();
-        System.out.println("sendStinky finished at " + LocalDateTime.now());
+    public void sendSelected() {
+        System.out.println("sendSelected started at " + LocalDateTime.now());
+        selectedService.sendSelectedAllChat();
+        System.out.println("sendSelected finished at " + LocalDateTime.now());
     }
 
     @Scheduled(cron = "1 0 0 * * ?")

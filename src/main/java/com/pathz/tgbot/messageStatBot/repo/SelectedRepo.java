@@ -1,14 +1,14 @@
 package com.pathz.tgbot.messageStatBot.repo;
 
-import com.pathz.tgbot.messageStatBot.entity.Stinky;
+import com.pathz.tgbot.messageStatBot.entity.Selected;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 
 @Repository
-public interface StinkyRepo extends JpaRepository<Stinky, Long> {
+public interface SelectedRepo extends JpaRepository<Selected, Long> {
 
-    Stinky findByChatIdAndDate(String chatId, LocalDate date);
+    Selected findByChatIdAndDate(String chatId, LocalDate date);
 
 }

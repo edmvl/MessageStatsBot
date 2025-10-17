@@ -3,7 +3,7 @@ package com.pathz.tgbot.messageStatBot.util.enums;
 public enum BotCommands {
 
     START_COMMAND("/start", ""),
-    GET_STINKY_ASS("/pohlo", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
+    GET_SELECTED("/selected", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
     GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе"),
     GET_STATS_ALL("/stat", "вся статистика"),
     GET_WEEK_STATS("/week", "статистика за неделю"),

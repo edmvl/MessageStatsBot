@@ -3,13 +3,12 @@ package com.pathz.tgbot.messageStatBot.entity;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.time.LocalDate;
 
 @Entity
 @Data
-@Table(name = "stinky")
-public class Stinky {
+@Table(name = "selected")
+public class Selected {
 
     @Id
     @Column(name = "id")
