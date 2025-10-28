@@ -20,8 +20,11 @@ public class HelpService implements CommandExecutable {
             messageExecutor.deleteMessage(messageDTO.getChatId(), messageDTO.getMessageId());
             final String eof = "\n";
             String text = "Привет, вот что я пока умею:" + eof +
-                    BotCommands.TRIP.getCommand() + " : " + BotCommands.TRIP.getExplainer() + eof +
-                    BotCommands.TAXI.getCommand() + " : " + BotCommands.TAXI.getExplainer() + eof;
+                    BotCommands.GET_STATS_ALL.getCommand() + " : " + BotCommands.GET_STATS_ALL.getExplainer() + eof +
+                    BotCommands.REMINDER.getCommand() + " : " + BotCommands.REMINDER.getExplainer() + eof +
+                    BotCommands.REMOVE_REMINDER.getCommand() + " : " + BotCommands.REMOVE_REMINDER.getExplainer() + eof +
+                    BotCommands.QUIZ.getCommand() + " : " + BotCommands.QUIZ.getExplainer() + eof +
+                    BotCommands.GET_SELECTED.getCommand() + " : " + BotCommands.GET_SELECTED.getExplainer() + eof;
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(messageDTO.getChatId());
             sendMessage.setText(text);

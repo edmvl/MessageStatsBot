@@ -1,6 +1,7 @@
 package com.pathz.tgbot.messageStatBot.service;
 
 import com.pathz.tgbot.messageStatBot.dto.ChatViewDto;
+import com.pathz.tgbot.messageStatBot.dto.FileDto;
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
 import com.pathz.tgbot.messageStatBot.entity.Log;
 import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
@@ -37,7 +38,7 @@ public class LogService implements CommandExecutable {
     public void executeCommand(MessageDTO messageDTO) {
     }
 
-    public void save(MessageDTO messageDTO, Pair<String, String> file) {
+    public void save(MessageDTO messageDTO, FileDto file) {
         log.log(Level.INFO,
                 String.format("%s %s %s", messageDTO.getChatName(), messageDTO.getUserName(), messageDTO.getUserText()));
         Log log = new Log();
@@ -51,8 +52,8 @@ public class LogService implements CommandExecutable {
         log.setText(messageDTO.getUserText());
         log.setLoggerType("chatbot");
         if (Objects.nonNull(file)) {
-            log.setFileType(file.getFirst());
-            log.setFile(file.getSecond());
+            log.setFileType(file.getFileType().getFileType());
+            log.setFile(file.getFileId());
         }
         logRepo.save(log);
     }

@@ -3,7 +3,7 @@ package com.pathz.tgbot.messageStatBot.util.enums;
 public enum BotCommands {
 
     START_COMMAND("/start", ""),
-    GET_SELECTED("/selected", "кашни кун чатра такам пăсарать, щав пăсараканнине шыраса тупатпăр"),
+    GET_SELECTED("/selected", "Найти спонсора пьянки"),
     GET_CHATTY("/suroh", "хăшĕ перисем чата кĕрес умĕнь сурăх тути çиеççе"),
     GET_STATS_ALL("/stat", "вся статистика"),
     GET_WEEK_STATS("/week", "статистика за неделю"),
@@ -14,8 +14,8 @@ public enum BotCommands {
     CHALLANGE_REGISTRATION("/reg", "зарегистрировться на розыгрыш"),
     TRIP("/trip", "Поиск попутки или попутчиков"),
     TAXI("/taxi", "Поиск такси"),
-    REMINDER("/rem", "Создать напоминание"),
-    REMOVE_REMINDER("/stoprem", "Создать напоминание"),
+    REMINDER("/rem", "Создать напоминание, для использования необходимо выполнить команду реплаем на сообщении"),
+    REMOVE_REMINDER("/stoprem", "Удалить напоминание, для использования необходимо выполнить команду на упоминаемом сообшении"),
     QUIZ("/quiz", "Запустить викторину"),
     CHATS("/chats", "Посмотреть истории чатов"),
     ;

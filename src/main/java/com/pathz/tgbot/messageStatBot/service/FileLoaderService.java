@@ -1,5 +1,6 @@
 package com.pathz.tgbot.messageStatBot.service;
 
+import com.pathz.tgbot.messageStatBot.dto.FileDto;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -24,14 +25,14 @@ public class FileLoaderService {
     }
 
     @SneakyThrows
-    public String downloadFile(String fileId) {
-        String jsonString = getHTMLPage("https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileId);
+    public String downloadFile(FileDto fileDto) {
+        String jsonString = getHTMLPage("https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileDto.getFileId());
         if (Objects.nonNull(jsonString)) {
             JSONObject obj = new JSONObject(jsonString);
             JSONObject result = obj.getJSONObject("result");
             String file_path = result.getString("file_path");
             String url = "https://api.telegram.org/file/bot" + token + "/" + file_path;
-            File destination = new File(fileId);
+            File destination = new File("/home/edmvl/bot_files/" + fileDto.getFileNameForSave());
             FileUtils.copyURLToFile(
                     new URL(url),
                     destination,

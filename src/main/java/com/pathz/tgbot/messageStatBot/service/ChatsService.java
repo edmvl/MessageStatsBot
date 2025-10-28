@@ -36,7 +36,7 @@ public class ChatsService implements CommandExecutable{
             SendMessage sendMessage = new SendMessage();
             sendMessage.setReplyMarkup(inlineKeyboardMarkup);
             sendMessage.setChatId(messageDTO.getChatId());
-            sendMessage.setText("Поиск такси");
+            sendMessage.setText("История чатов");
             messageExecutor.sendMessage(sendMessage);
         }
     }

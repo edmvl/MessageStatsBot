@@ -1,23 +1,39 @@
 package com.pathz.tgbot.messageStatBot.handler;
 
+import com.pathz.tgbot.messageStatBot.dto.FileDto;
 import com.pathz.tgbot.messageStatBot.dto.MessageDTO;
-import com.pathz.tgbot.messageStatBot.message_executor.MessageExecutor;
-import com.pathz.tgbot.messageStatBot.service.*;
+import com.pathz.tgbot.messageStatBot.service.AnswerCheckable;
+import com.pathz.tgbot.messageStatBot.service.CommandExecutable;
+import com.pathz.tgbot.messageStatBot.service.FileLoaderService;
+import com.pathz.tgbot.messageStatBot.service.LogService;
+import com.pathz.tgbot.messageStatBot.service.WordsFilterService;
 import com.pathz.tgbot.messageStatBot.util.enums.BotCommands;
 import com.pathz.tgbot.messageStatBot.util.MessageFormatter;
+import com.pathz.tgbot.messageStatBot.util.enums.FileTypes;
 import com.pathz.tgbot.messageStatBot.util.enums.HoroscopeEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Audio;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.Video;
+import org.telegram.telegrambots.meta.api.objects.VideoNote;
+import org.telegram.telegrambots.meta.api.objects.Voice;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -68,11 +84,10 @@ public class MessageHandler implements Handler<Message> {
                 )
                 .build();
         wordsFilterService.deleteByFilter(messageDTO);
-        Pair<String, String> file = getFile(message);
+        FileDto file = getFile(message);
         logService.save(messageDTO, file);
         if (Objects.nonNull(file)) {
-            String second = file.getSecond();
-            fileLoaderService.downloadFile(second);
+            fileLoaderService.downloadFile(file);
         }
         if (getAllBotCommands().stream().anyMatch(s -> messageDTO.getUserText().toLowerCase(Locale.ROOT).startsWith(s.toLowerCase()))) {
             commandExecutables.forEach(service -> service.executeCommand(messageDTO));
@@ -86,39 +101,39 @@ public class MessageHandler implements Handler<Message> {
         return Stream.concat(s1.stream(), s2.stream()).toList();
     }
 
-    private Pair<String, String> getFile(Message message) {
+    private FileDto getFile(Message message) {
         List<PhotoSize> photo = message.getPhoto();
         if (Objects.nonNull(photo)) {
             Optional<PhotoSize> max = photo.stream().max(Comparator.comparingInt(PhotoSize::getFileSize));
-            return Pair.of("photo", max.map(PhotoSize::getFileId).orElse(null));
+            return new FileDto(FileTypes.PHOTO, max.map(PhotoSize::getFileId).orElse(null), null);
         }
         Document document = message.getDocument();
         if (Objects.nonNull(document)) {
-            return Pair.of("document", document.getFileId());
+            return new FileDto(FileTypes.DOCUMENT, document.getFileId(), document.getFileName());
         }
         Sticker sticker = message.getSticker();
         if (Objects.nonNull(sticker)) {
-            return Pair.of("sticker", sticker.getFileId());
+            return new FileDto(FileTypes.STICKER, sticker.getFileId(), null);
         }
         VideoNote videoNote = message.getVideoNote();
         if (Objects.nonNull(videoNote)) {
-            return Pair.of("video_note", videoNote.getFileId());
+            return new FileDto(FileTypes.VIDEO_NOTE, videoNote.getFileId(), null);
         }
         Video video = message.getVideo();
         if (Objects.nonNull(video)) {
-            return Pair.of("video", video.getFileId());
+            return new FileDto(FileTypes.VIDEO, video.getFileId(), video.getFileName());
         }
         Voice voice = message.getVoice();
         if (Objects.nonNull(voice)) {
-            return Pair.of("voice", voice.getFileId());
+            return new FileDto(FileTypes.VOICE, voice.getFileId(), null);
         }
         Animation animation = message.getAnimation();
         if (Objects.nonNull(animation)) {
-            return Pair.of("animation", animation.getFileId());
+            return new FileDto(FileTypes.ANIMATION, animation.getFileId(), animation.getFileName());
         }
         Audio audio = message.getAudio();
         if (Objects.nonNull(audio)) {
-            return Pair.of("audio", audio.getFileId());
+            return new FileDto(FileTypes.AUDIO, audio.getFileId(), audio.getFileName());
         }
         return null;
     }
